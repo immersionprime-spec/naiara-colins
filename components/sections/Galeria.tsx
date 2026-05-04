@@ -155,84 +155,184 @@ function GaleriaEspaco({ items, isMobile }: { items: MediaItem[]; isMobile: bool
 // ─── Galeria Trabalho (before/after) ────────────────────────────────────────
 function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: boolean }) {
   const t = useTranslations("galeria");
-  const [position, setPosition] = useState(50);
-  const [showAfter, setShowAfter] = useState(false);
-  const [currentPair, setCurrentPair] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
+  const [activeDot, setActiveDot] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  function SliderCard({ before, after, isMobile: mobile }: {
+    before: MediaItem;
+    after: MediaItem;
+    isMobile: boolean;
+  }) {
+    const [position, setPosition] = useState(50);
+    const [showAfter, setShowAfter] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const dragging = useRef(false);
+
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+      if (!dragging.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      setPosition(Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100)));
+    }, []);
+
+    const stopDrag = useCallback(() => { dragging.current = false; }, []);
+
+    useEffect(() => {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", stopDrag);
+      return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", stopDrag);
+      };
+    }, [handleMouseMove, stopDrag]);
+
+    const CARD_STYLE: import("react").CSSProperties = {
+      position: "relative",
+      aspectRatio: "3/4",
+      overflow: "hidden",
+      borderRadius: 4,
+      border: "1px solid var(--color-border)",
+      background: "#111",
+    };
+
+    if (mobile) {
+      return (
+        <div
+          onClick={() => setShowAfter(!showAfter)}
+          style={{ ...CARD_STYLE, cursor: "pointer", flexShrink: 0, minWidth: "85%", scrollSnapAlign: "start" }}
+        >
+          {(showAfter ? after : before).signedUrl
+            ? <img src={(showAfter ? after : before).signedUrl} alt={showAfter ? "Depois" : "Antes"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            : <CrownFallback />
+          }
+          <div style={{
+            position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
+            background: "rgba(0,0,0,0.75)", color: "#C9A84C",
+            padding: "6px 14px", fontSize: 12, fontFamily: "var(--font-sans)", borderRadius: 2, whiteSpace: "nowrap",
+          }}>
+            {showAfter ? "← Ver antes" : "Ver depois →"}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        ref={containerRef}
+        onMouseDown={() => { dragging.current = true; }}
+        style={{ ...CARD_STYLE, cursor: "col-resize", userSelect: "none" }}
+      >
+        {/* Before */}
+        <div style={{ position: "absolute", inset: 0 }}>
+          {before.signedUrl
+            ? <img src={before.signedUrl} alt="Antes" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            : <CrownFallback />
+          }
+        </div>
+        {/* After clipped */}
+        <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 ${100 - position}% 0 0)` }}>
+          <div style={{ position: "absolute", inset: 0 }}>
+            {after.signedUrl
+              ? <img src={after.signedUrl} alt="Depois" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              : <CrownFallback />
+            }
+          </div>
+        </div>
+        {/* Divider */}
+        <div style={{
+          position: "absolute", top: 0, bottom: 0, left: `${position}%`,
+          width: 2, background: "#C9A84C", transform: "translateX(-50%)", pointerEvents: "none",
+        }}>
+          <div style={{
+            position: "absolute", top: "50%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 36, height: 36, borderRadius: "50%",
+            background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#1a1a1a", fontSize: 14, fontWeight: 700,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+          }}>↔</div>
+        </div>
+      </div>
+    );
+  }
 
   const pairs: [MediaItem, MediaItem][] = [];
   for (let i = 0; i + 1 < items.length; i += 2) pairs.push([items[i], items[i + 1]]);
-  const mockPairs: [MediaItem, MediaItem][] = pairs.length > 0 ? pairs : [
+
+  const displayPairs: [MediaItem, MediaItem][] = pairs.length > 0 ? pairs : [
     [{ id: "ba1", signedUrl: "", url: "" }, { id: "ba2", signedUrl: "", url: "" }],
+    [{ id: "ba3", signedUrl: "", url: "" }, { id: "ba4", signedUrl: "", url: "" }],
+    [{ id: "ba5", signedUrl: "", url: "" }, { id: "ba6", signedUrl: "", url: "" }],
   ];
-  const pair = mockPairs[currentPair];
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!dragging.current || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    setPosition(Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100)));
-  }, []);
-  const stopDrag = useCallback(() => { dragging.current = false; }, []);
-
-  useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", stopDrag);
-    return () => { window.removeEventListener("mousemove", handleMouseMove); window.removeEventListener("mouseup", stopDrag); };
-  }, [handleMouseMove, stopDrag]);
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const idx = Math.round(scrollRef.current.scrollLeft / (scrollRef.current.offsetWidth * 0.85));
+    setActiveDot(Math.min(idx, displayPairs.length - 1));
+  };
 
   return (
     <div>
-      <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "var(--text-h2)", color: "var(--color-text)", marginBottom: 32 }}>
+      <h3 style={{
+        fontFamily: "var(--font-serif)",
+        fontSize: "var(--text-h2)",
+        color: "var(--color-text)",
+        marginBottom: 32,
+      }}>
         {t("trabalho_titulo")}
       </h3>
 
       {isMobile ? (
-        /* Mobile: tap to toggle */
-        <div onClick={() => setShowAfter(!showAfter)} style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden", cursor: "pointer", borderRadius: 4 }}>
-          <div style={{ position: "absolute", inset: 0, background: "#111" }}>
-            {pair[showAfter ? 1 : 0].signedUrl ? (
-              <img src={pair[showAfter ? 1 : 0].signedUrl} alt={showAfter ? "Depois" : "Antes"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : <CrownFallback />}
-          </div>
-          <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,0.75)", color: "#C9A84C", padding: "6px 14px", fontSize: 12, fontFamily: "var(--font-sans)", borderRadius: 2, whiteSpace: "nowrap" }}>
-            {showAfter ? "← Ver antes" : "Ver depois →"}
-          </div>
-        </div>
-      ) : (
-        /* Desktop: drag slider */
+        /* Mobile: snap carousel */
         <>
           <div
-            ref={containerRef}
-            onMouseDown={() => { dragging.current = true; }}
-            style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden", cursor: "col-resize", userSelect: "none", borderRadius: 4 }}
+            ref={scrollRef}
+            onScroll={handleScroll}
+            style={{
+              display: "flex",
+              overflowX: "auto",
+              gap: 12,
+              scrollSnapType: "x mandatory",
+              scrollBehavior: "smooth",
+              WebkitOverflowScrolling: "touch",
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
+            }}
           >
-            {/* Before */}
-            <div style={{ position: "absolute", inset: 0, background: "#111" }}>
-              {pair[0].signedUrl ? <img src={pair[0].signedUrl} alt="Antes" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <CrownFallback />}
-            </div>
-            {/* After clipped */}
-            <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 ${100 - position}% 0 0)` }}>
-              <div style={{ position: "absolute", inset: 0, background: "#222" }}>
-                {pair[1].signedUrl ? <img src={pair[1].signedUrl} alt="Depois" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <CrownFallback />}
-              </div>
-            </div>
-            {/* Divider */}
-            <div style={{ position: "absolute", top: 0, bottom: 0, left: `${position}%`, width: 2, background: "#C9A84C", transform: "translateX(-50%)", pointerEvents: "none" }}>
-              <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 36, height: 36, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", color: "#1a1a1a", fontSize: 14, fontWeight: 700, boxShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>↔</div>
-            </div>
+            {displayPairs.map(([before, after]) => (
+              <SliderCard key={before.id} before={before} after={after} isMobile={true} />
+            ))}
           </div>
-          {/* Pair dots */}
-          {mockPairs.length > 1 && (
-            <div style={{ display: "flex", gap: 8, marginTop: 12, justifyContent: "center" }}>
-              {mockPairs.map((_, i) => (
-                <button key={i} onClick={() => { setCurrentPair(i); setPosition(50); }}
-                  style={{ width: 8, height: 8, borderRadius: "50%", background: i === currentPair ? "#C9A84C" : "rgba(201,168,76,0.3)", border: "none", cursor: "pointer" }}
-                />
-              ))}
-            </div>
-          )}
+          <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
+            {displayPairs.map((_, i) => (
+              <span
+                key={i}
+                style={{
+                  width: 6, height: 6, borderRadius: "50%",
+                  background: "#C9A84C",
+                  opacity: i === activeDot ? 1 : 0.3,
+                  transition: "opacity 200ms",
+                }}
+              />
+            ))}
+          </div>
         </>
+      ) : (
+        /* Desktop: grid de cards */
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: displayPairs.length === 1
+            ? "1fr"
+            : displayPairs.length === 2
+              ? "repeat(2, 1fr)"
+              : "repeat(3, 1fr)",
+          gap: 16,
+          maxWidth: displayPairs.length === 1 ? 480 : "100%",
+          margin: displayPairs.length === 1 ? "0 auto" : undefined,
+        }}>
+          {displayPairs.map(([before, after]) => (
+            <SliderCard key={before.id} before={before} after={after} isMobile={false} />
+          ))}
+        </div>
       )}
     </div>
   );
