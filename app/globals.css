@@ -1,0 +1,218 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-serif: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-sans: "DM Sans", "Jost", system-ui, sans-serif;
+
+  --color-splash-bg: #0a0a0a;
+  --color-splash-gold: #c9a84c;
+
+  --color-video-overlay: rgba(10, 10, 10, 0.45);
+
+  --color-cta-mobile-bg: #c9a84c;
+  --color-cta-mobile-text: #1a1a1a;
+
+  --color-blog-body-bg: #f5f0eb;
+  --color-blog-body-text: #1a1a1a;
+
+  --text-display: clamp(3rem, 8vw, 7rem);
+  --text-hero-sub: clamp(1rem, 2vw, 1.5rem);
+  --text-h1: clamp(2.5rem, 6vw, 5rem);
+  --text-h2: clamp(1.75rem, 4vw, 3rem);
+  --text-h3: clamp(1.25rem, 2.5vw, 2rem);
+  --text-body-lg: clamp(1.0625rem, 1.5vw, 1.25rem);
+  --text-body: clamp(0.9375rem, 1.2vw, 1.0625rem);
+  --text-body-sm: clamp(0.8125rem, 1vw, 0.9375rem);
+  --text-toggle: 0.625rem;
+  --text-caption: 0.75rem;
+  --text-label: 0.6875rem;
+
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  --leading-tight: 1.1;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+  --leading-loose: 1.9;
+
+  --section-gap: 120px;
+  --section-gap-mobile: 80px;
+  --section-gap-hero: 160px;
+  --section-gap-testimonials: 160px;
+  --section-padding-x: clamp(1.5rem, 5vw, 6rem);
+  --max-width: 1280px;
+  --card-padding: clamp(1.5rem, 3vw, 2.5rem);
+  --card-radius: 8px;
+  --card-gap: 24px;
+  --divider-height: 1px;
+  --divider-width-min: 60px;
+  --divider-width-max: 120px;
+  --menu-height: 72px;
+  --menu-scroll-offset: 90px;
+  --whatsapp-btn-size: 56px;
+  --whatsapp-btn-offset: 24px;
+  --whatsapp-btn-delay: 3000ms;
+  --scrollbar-width: 4px;
+  --scrollbar-thumb: #c9a84c;
+
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-smooth: 400ms;
+  --duration-reveal: 600ms;
+  --duration-hero: 1200ms;
+  --duration-flip: 500ms;
+  --duration-page: 300ms;
+
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-hero: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root,
+:root[data-theme="dark"] {
+  --color-bg: #0a0a0a;
+  --color-bg-alt: #f5f0eb;
+  --color-bg-card: #111111;
+  --color-bg-featured: #161616;
+  --color-bg-overlay: rgba(10, 10, 10, 0.92);
+  --color-bg-footer: #0a0a0a;
+  --color-bg-footer-sub: #050505;
+  --color-text: #ffffff;
+  --color-text-muted: #d4c5b2;
+  --color-text-inverse: #1a1a1a;
+  --color-gold: #c9a84c;
+  --color-gold-hover: #d4b45a;
+  --color-gold-subtle: rgba(201, 168, 76, 0.12);
+  --color-gold-opacity: 0.7;
+  --color-border: #222222;
+  --color-border-gold: #c9a84c;
+  --color-error: #e55555;
+  --color-success: #4caf7d;
+  --color-selection-bg: rgba(201, 168, 76, 0.2);
+  --color-selection-text: #c9a84c;
+  --color-focus-inner: #0a0a0a;
+  --color-focus-outer: #c9a84c;
+  --divider-opacity: 0.7;
+}
+
+:root[data-theme="light"] {
+  --color-bg: #faf7f4;
+  --color-bg-alt: #f0ebe4;
+  --color-bg-card: #ffffff;
+  --color-bg-featured: #f5f0eb;
+  --color-bg-overlay: rgba(250, 247, 244, 0.92);
+  --color-bg-footer: #1a1a1a;
+  --color-bg-footer-sub: #111111;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b5f52;
+  --color-text-inverse: #ffffff;
+  --color-gold: #c9a84c;
+  --color-gold-hover: #d4b45a;
+  --color-gold-subtle: rgba(201, 168, 76, 0.12);
+  --color-gold-opacity: 1;
+  --color-border: #e8e0d5;
+  --color-border-gold: #c9a84c;
+  --color-error: #c0392b;
+  --color-success: #27ae60;
+  --color-selection-bg: rgba(201, 168, 76, 0.2);
+  --color-selection-text: #a07830;
+  --color-focus-inner: #faf7f4;
+  --color-focus-outer: #c9a84c;
+  --divider-opacity: 1;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-relaxed);
+  transition:
+    background-color 300ms ease,
+    color 300ms ease;
+}
+
+:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--color-focus-inner),
+    0 0 0 4px var(--color-focus-outer);
+  outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c9a84c;
+  border-radius: 2px;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c9a84c transparent;
+}
+
+::selection {
+  background: var(--color-selection-bg);
+  color: var(--color-selection-text);
+}
+
+a,
+button,
+[role="button"],
+input[type="submit"],
+label,
+select {
+  cursor: url("/cursors/dot-gold.svg") 8 8, pointer;
+}
+
+section[id] {
+  scroll-margin-top: var(--menu-scroll-offset);
+}
+
+@media print {
+  * {
+    background: #ffffff !important;
+    color: #1a1a1a !important;
+    box-shadow: none !important;
+  }
+  h1,
+  h2,
+  h3 {
+    color: #a07830 !important;
+  }
+  header,
+  nav,
+  .whatsapp-float,
+  .lgpd-banner,
+  video,
+  .splash-screen,
+  footer {
+    display: none !important;
+  }
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 10px;
+  }
+}

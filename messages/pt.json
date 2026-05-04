@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "sobre": "Sobre",
+    "servicos": "Serviços",
+    "galeria": "Galeria",
+    "depoimentos": "Depoimentos",
+    "cursos": "Cursos",
+    "agendar": "Agendar",
+    "agendarWhatsApp": "Agendar pelo WhatsApp"
+  },
+  "hero": {
+    "tagline": "Beleza com experiência",
+    "cta": "Agende sua experiência"
+  },
+  "sobre": {
+    "titulo": "Sobre a Naiara",
+    "lerMais": "Continuar lendo",
+    "texto": "Eu sou a Nay.\n\nGaúcha de alma, catarinense de escolha. Vim para Balneário Camboriú para ficar alguns dias — e fiquei seis anos. Como acontece com quem realmente pertence a um lugar.\n\nMas antes de estar aqui, do jeito que estou hoje, existiu uma versão de mim que duvidou. Que trabalhou longe do que amava, que adiou o sonho por medo de não ser boa o suficiente. Que olhava para a arte da beleza e pensava: isso exige muito, exige estudo, exige coragem — será que sou capaz?\n\nEra capaz. Só ainda não sabia.\n\nO ponto de virada não veio com um plano perfeito. Veio com uma oração. Fui a uma igreja aqui em Balneário, joelhei, chorei e entreguei: 'Deus, seja feita a sua vontade.' No dia seguinte, recebi a proposta que mudou minha vida — a oportunidade de assumir um salão e, com ele, o sonho que eu havia guardado fundo demais por tempo demais.\n\nAprendi naquele dia que quando a gente larga o controle e confia, as coisas acontecem do jeito que têm que acontecer.\n\nHoje, com 27 anos, eu acordo todos os dias para fazer o que sempre amei: trabalhar com a autoestima de mulheres. Cada cliente que se levanta da cadeira diferente de como entrou é o meu maior resultado. Não tem prêmio maior do que isso.\n\nO Naiara Colin Espaço de Beleza não nasceu do dia para a noite. Nasceu de coragem, de fé, de muito trabalho — e da certeza de que sonho entregue nas mãos certas, acontece.\n\nSe você ainda não veio, eu te convido. Aqui é o seu lugar."
+  },
+  "servicos": {
+    "titulo": "Serviços",
+    "subtitulo": "Cada serviço, uma experiência pensada para você",
+    "agendar": "Agendar",
+    "categorias": {
+      "hair": "Hair Design & Styling",
+      "hair_desc": "Transformação, cuidado e finalização com excelência.",
+      "nail": "Nail Design",
+      "nail_desc": "Beleza e elegância em cada detalhe.",
+      "estetica": "Estética Avançada & Facial",
+      "estetica_desc": "Tecnologia, cuidado e realce da sua beleza natural."
+    }
+  },
+  "diferenciais": {
+    "titulo": "Por que a Naiara Colin?",
+    "item1": "Experiência premium desde a entrada",
+    "item2": "Produtos profissionais exclusivos",
+    "item3": "Ambiente pensado para você",
+    "item4": "Atendimento personalizado"
+  },
+  "galeria": {
+    "espaco_titulo": "O espaço",
+    "trabalho_titulo": "O trabalho"
+  },
+  "blog": {
+    "titulo": "Blog",
+    "empty": "Ainda não há posts publicados para este idioma.",
+    "voltar": "Voltar ao blog",
+    "postCta": "Gostou do conteúdo? Agende sua experiência.",
+    "postCtaBtn": "Agendar pelo WhatsApp"
+  },
+  "mapa": {
+    "titulo": "Como nos encontrar"
+  },
+  "instagram": {
+    "titulo": "No Instagram",
+    "subtitulo": "@naiaracolin_salao",
+    "cta": "Ver perfil no Instagram"
+  },
+  "depoimentos": {
+    "titulo": "O que nossas clientes dizem",
+    "subtitulo": "Experiências reais. Transformações reais."
+  },
+  "cursos": {
+    "titulo": "Cursos",
+    "copy": "Aprenda com quem faz. Técnicas exclusivas para quem quer ir além.",
+    "cta": "Conheça os cursos",
+    "imagemEmBreve": "Imagem dos cursos em breve",
+    "conteudoEmBreve": "Conteúdo dos cursos em breve.",
+    "ctaSticky": "Quero saber mais sobre os cursos"
+  },
+  "footer": {
+    "endereco": "Rua 1500, 397 — Centro, Balneário Camboriú, SC",
+    "horario": "Terça a Sábado · 9h às 19h",
+    "copiarEndereco": "Endereço copiado",
+    "copiarTelefone": "Número copiado",
+    "copyright": "© {year} Naiara Colin Espaço de Beleza. Todos os direitos reservados.",
+    "privacidade": "Política de Privacidade"
+  },
+  "whatsapp": {
+    "geral": "Olá, Nay! Vi o site e gostaria de agendar.",
+    "servico": "Olá! Tenho interesse em {servico}.",
+    "cursos": "Olá! Tenho interesse em saber mais sobre os cursos.",
+    "label": "Agendar pelo WhatsApp"
+  },
+  "lgpd": {
+    "texto": "Utilizamos cookies para melhorar sua experiência.",
+    "botao": "Entendi",
+    "link": "Saiba mais"
+  },
+  "admin": {
+    "login": {
+      "titulo": "Acesso Administrativo",
+      "email_label": "E-mail",
+      "email_placeholder": "seu@email.com",
+      "botao": "Enviar link de acesso",
+      "sucesso": "Link enviado! Verifique seu e-mail.",
+      "erro": "Erro ao enviar. Tente novamente."
+    },
+    "midias": "Mídias",
+    "textos": "Textos",
+    "depoimentos": "Depoimentos",
+    "blog": "Blog",
+    "instagram": "Instagram",
+    "agendamentos": "Agendamentos",
+    "agendamentos_em_breve": "Em breve",
+    "video_principal": "Vídeo Principal (aparece no mobile)",
+    "video_desktop": "Vídeo Desktop",
+    "erro_tamanho": "Arquivo muito grande. Use imagens de até 10MB ou vídeos de até 500MB.",
+    "erro_formato": "Formato não suportado. Use JPG, PNG, WebP ou MP4.",
+    "erro_conexao": "Conexão instável. Tente novamente.",
+    "sucesso_salvo": "Salvo com sucesso!",
+    "dashboard_notas": "Áreas do painel — a UI detalhada será implementada no frontend."
+  },
+  "pagina404": {
+    "titulo": "Esta página não existe — mas sua próxima experiência sim.",
+    "inicio": "Voltar para o início",
+    "whatsapp": "Agendar pelo WhatsApp"
+  },
+  "privacidade": {
+    "titulo": "Política de Privacidade",
+    "corpo": "Esta página descreve o tratamento de dados pessoais em conformidade com a LGPD. O conteúdo jurídico completo será publicado após revisão final."
+  }
+}

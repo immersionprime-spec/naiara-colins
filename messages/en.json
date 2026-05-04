@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "sobre": "About",
+    "servicos": "Services",
+    "galeria": "Gallery",
+    "depoimentos": "Testimonials",
+    "cursos": "Courses",
+    "agendar": "Book",
+    "agendarWhatsApp": "Book on WhatsApp"
+  },
+  "hero": {
+    "tagline": "[TAGLINE_EN_PENDING] PENDING — awaiting approval from Naiara",
+    "cta": "Book your experience"
+  },
+  "sobre": {
+    "titulo": "About Naiara",
+    "lerMais": "Read more",
+    "texto": "Biography copy pending translation and approval."
+  },
+  "servicos": {
+    "titulo": "Services",
+    "subtitulo": "Each service, an experience designed for you",
+    "agendar": "Book",
+    "categorias": {
+      "hair": "Hair Design & Styling",
+      "hair_desc": "Transformation, care, and a flawless finish.",
+      "nail": "Nail Design",
+      "nail_desc": "Beauty and elegance in every detail.",
+      "estetica": "Advanced aesthetics & facial",
+      "estetica_desc": "Technology, care, and enhancing your natural beauty."
+    }
+  },
+  "diferenciais": {
+    "titulo": "Why Naiara Colin?",
+    "item1": "Premium experience from the moment you arrive",
+    "item2": "Exclusive professional products",
+    "item3": "A space designed for you",
+    "item4": "Personalized service"
+  },
+  "galeria": {
+    "espaco_titulo": "The space",
+    "trabalho_titulo": "The work"
+  },
+  "blog": {
+    "titulo": "Blog",
+    "empty": "No published posts for this language yet.",
+    "voltar": "Back to blog",
+    "postCta": "Liked what you read? Book your experience.",
+    "postCtaBtn": "Book on WhatsApp"
+  },
+  "mapa": {
+    "titulo": "How to find us"
+  },
+  "instagram": {
+    "titulo": "On Instagram",
+    "subtitulo": "@naiaracolin_salao",
+    "cta": "See profile on Instagram"
+  },
+  "depoimentos": {
+    "titulo": "What our clients say",
+    "subtitulo": "Real experiences. Real transformations."
+  },
+  "cursos": {
+    "titulo": "Courses",
+    "copy": "Learn from someone who does it. Exclusive techniques to go further.",
+    "cta": "Explore courses",
+    "imagemEmBreve": "Course image coming soon",
+    "conteudoEmBreve": "Course content coming soon.",
+    "ctaSticky": "I want to know more about the courses"
+  },
+  "footer": {
+    "endereco": "Rua 1500, 397 — Downtown, Balneário Camboriú, SC",
+    "horario": "Tuesday to Saturday · 9am to 7pm",
+    "copiarEndereco": "Address copied",
+    "copiarTelefone": "Number copied",
+    "copyright": "© {year} Naiara Colin Espaço de Beleza. All rights reserved.",
+    "privacidade": "Privacy policy"
+  },
+  "whatsapp": {
+    "geral": "Hi Nay! I saw the website and would like to book.",
+    "servico": "Hi! I'm interested in {servico}.",
+    "cursos": "Hi! I'd like to know more about the courses.",
+    "label": "Book on WhatsApp"
+  },
+  "lgpd": {
+    "texto": "We use cookies to improve your experience.",
+    "botao": "Got it",
+    "link": "Learn more"
+  },
+  "admin": {
+    "login": {
+      "titulo": "Admin access",
+      "email_label": "Email",
+      "email_placeholder": "you@email.com",
+      "botao": "Send magic link",
+      "sucesso": "Link sent. Check your email.",
+      "erro": "Could not send. Please try again."
+    },
+    "midias": "Media",
+    "textos": "Copy",
+    "depoimentos": "Testimonials",
+    "blog": "Blog",
+    "instagram": "Instagram",
+    "agendamentos": "Appointments",
+    "agendamentos_em_breve": "Coming soon",
+    "video_principal": "Primary video (mobile)",
+    "video_desktop": "Desktop video",
+    "erro_tamanho": "File too large. Use images up to 10MB or video up to 500MB.",
+    "erro_formato": "Unsupported format. Use JPG, PNG, WebP, or MP4.",
+    "erro_conexao": "Unstable connection. Please try again.",
+    "sucesso_salvo": "Saved successfully.",
+    "dashboard_notas": "Dashboard areas — detailed UI will be implemented in the frontend."
+  },
+  "pagina404": {
+    "titulo": "This page doesn't exist — but your next experience does.",
+    "inicio": "Back to home",
+    "whatsapp": "Book on WhatsApp"
+  },
+  "privacidade": {
+    "titulo": "Privacy policy",
+    "corpo": "This page describes personal data processing in line with LGPD. The full legal text will be published after final review."
+  }
+}

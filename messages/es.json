@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "sobre": "Sobre",
+    "servicos": "Servicios",
+    "galeria": "Galería",
+    "depoimentos": "Testimonios",
+    "cursos": "Cursos",
+    "agendar": "Reservar",
+    "agendarWhatsApp": "Reservar por WhatsApp"
+  },
+  "hero": {
+    "tagline": "[TAGLINE_ES_PENDENTE] PENDENTE — aguardando aprovação da Naiara",
+    "cta": "Reserva tu experiencia"
+  },
+  "sobre": {
+    "titulo": "Sobre Naiara",
+    "lerMais": "Seguir leyendo",
+    "texto": "Texto biográfico pendiente de traducción y aprobación."
+  },
+  "servicos": {
+    "titulo": "Servicios",
+    "subtitulo": "Cada servicio, una experiencia pensada para ti",
+    "agendar": "Reservar",
+    "categorias": {
+      "hair": "Hair Design & Styling",
+      "hair_desc": "Transformación, cuidado y acabado con excelencia.",
+      "nail": "Nail Design",
+      "nail_desc": "Belleza y elegancia en cada detalle.",
+      "estetica": "Estética avanzada y facial",
+      "estetica_desc": "Tecnología, cuidado y realce de tu belleza natural."
+    }
+  },
+  "diferenciais": {
+    "titulo": "¿Por qué Naiara Colin?",
+    "item1": "Experiencia premium desde la entrada",
+    "item2": "Productos profesionales exclusivos",
+    "item3": "Ambiente pensado para ti",
+    "item4": "Atención personalizada"
+  },
+  "galeria": {
+    "espaco_titulo": "El espacio",
+    "trabalho_titulo": "El trabajo"
+  },
+  "blog": {
+    "titulo": "Blog",
+    "empty": "Aún no hay entradas publicadas en este idioma.",
+    "voltar": "Volver al blog",
+    "postCta": "¿Te gustó el contenido? Reserva tu experiencia.",
+    "postCtaBtn": "Reservar por WhatsApp"
+  },
+  "mapa": {
+    "titulo": "Cómo encontrarnos"
+  },
+  "instagram": {
+    "titulo": "En Instagram",
+    "subtitulo": "@naiaracolin_salao",
+    "cta": "Ver perfil en Instagram"
+  },
+  "depoimentos": {
+    "titulo": "Lo que dicen nuestras clientas",
+    "subtitulo": "Experiencias reales. Transformaciones reales."
+  },
+  "cursos": {
+    "titulo": "Cursos",
+    "copy": "Aprende con quien lo hace. Técnicas exclusivas para ir más allá.",
+    "cta": "Conoce los cursos",
+    "imagemEmBreve": "Imagen de los cursos próximamente",
+    "conteudoEmBreve": "Contenido de los cursos próximamente.",
+    "ctaSticky": "Quiero saber más sobre los cursos"
+  },
+  "footer": {
+    "endereco": "Rua 1500, 397 — Centro, Balneário Camboriú, SC",
+    "horario": "Martes a sábado · 9h a 19h",
+    "copiarEndereco": "Dirección copiada",
+    "copiarTelefone": "Número copiado",
+    "copyright": "© {year} Naiara Colin Espaço de Beleza. Todos los derechos reservados.",
+    "privacidade": "Política de privacidad"
+  },
+  "whatsapp": {
+    "geral": "Hola, Nay. Vi el sitio y me gustaría reservar.",
+    "servico": "Hola, me interesa {servico}.",
+    "cursos": "Hola, me gustaría saber más sobre los cursos.",
+    "label": "Reservar por WhatsApp"
+  },
+  "lgpd": {
+    "texto": "Usamos cookies para mejorar tu experiencia.",
+    "botao": "Entendido",
+    "link": "Más información"
+  },
+  "admin": {
+    "login": {
+      "titulo": "Acceso administrativo",
+      "email_label": "Correo",
+      "email_placeholder": "tu@correo.com",
+      "botao": "Enviar enlace de acceso",
+      "sucesso": "Enlace enviado. Revisa tu correo.",
+      "erro": "Error al enviar. Inténtalo de nuevo."
+    },
+    "midias": "Medios",
+    "textos": "Textos",
+    "depoimentos": "Testimonios",
+    "blog": "Blog",
+    "instagram": "Instagram",
+    "agendamentos": "Citas",
+    "agendamentos_em_breve": "Próximamente",
+    "video_principal": "Vídeo principal (móvil)",
+    "video_desktop": "Vídeo escritorio",
+    "erro_tamanho": "Archivo demasiado grande. Imágenes hasta 10MB o vídeo hasta 500MB.",
+    "erro_formato": "Formato no admitido. Usa JPG, PNG, WebP o MP4.",
+    "erro_conexao": "Conexión inestable. Inténtalo de nuevo.",
+    "sucesso_salvo": "Guardado correctamente.",
+    "dashboard_notas": "Áreas del panel — la UI detallada se implementará en el frontend."
+  },
+  "pagina404": {
+    "titulo": "Esta página no existe — pero tu próxima experiencia, sí.",
+    "inicio": "Volver al inicio",
+    "whatsapp": "Reservar por WhatsApp"
+  },
+  "privacidade": {
+    "titulo": "Política de privacidad",
+    "corpo": "Esta página describe el tratamiento de datos personales conforme a la LGPD. El texto legal completo se publicará tras la revisión final."
+  }
+}
