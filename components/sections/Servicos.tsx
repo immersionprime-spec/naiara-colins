@@ -270,6 +270,7 @@ export default function Servicos({ data }: { data: ServicesData }) {
   return (
     <section
       id="servicos"
+      className="texture-dark"
       style={{
         background: "var(--color-bg)",
         paddingTop: "var(--section-gap)",

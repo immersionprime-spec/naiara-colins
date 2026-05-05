@@ -26,6 +26,7 @@ export default function Sobre({ videoUrl }: SobreProps) {
   return (
     <section
       id="sobre"
+      className="texture-dark"
       style={{
         background: "var(--color-bg)",
         paddingTop: "var(--section-gap)",

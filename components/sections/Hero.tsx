@@ -94,6 +94,7 @@ export default function Hero({ video1, video2 }: HeroProps) {
   return (
     <section
       id="inicio"
+      className="texture-dark"
       style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden" }}
     >
       {/* Videos background */}

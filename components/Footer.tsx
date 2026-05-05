@@ -59,7 +59,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer style={{ background: "var(--color-bg-footer)" }}>
+    <footer className="texture-dark" style={{ background: "var(--color-bg-footer)" }}>
       {/* Upper */}
       <div style={{
         paddingTop: 64,

@@ -28,6 +28,7 @@ export default function CursosHome({ imageUrl }: { imageUrl?: string }) {
     <section
       id="cursos"
       ref={sectionRef}
+      className="texture-dark"
       style={{
         position: "relative",
         background: "#0a0a0a",

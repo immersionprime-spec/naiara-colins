@@ -352,6 +352,7 @@ export default function Galeria({ espaco, trabalho }: { espaco: MediaItem[]; tra
   return (
     <section
       id="galeria"
+      className="texture-dark"
       style={{
         background: "var(--color-bg)",
         paddingTop: "var(--section-gap)",

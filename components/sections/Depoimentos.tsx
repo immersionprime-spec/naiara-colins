@@ -61,6 +61,7 @@ export default function Depoimentos({ data }: { data: Testimonial[] }) {
   return (
     <section
       id="depoimentos"
+      className="texture-dark"
       style={{
         background: "var(--color-bg)",
         paddingTop: "var(--section-gap-testimonials)",

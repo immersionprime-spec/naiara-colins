@@ -11,6 +11,7 @@ export default function MapaSection() {
   return (
     <section
       id="mapa"
+      className="texture-dark"
       style={{
         background: "var(--color-bg)",
         paddingTop: "var(--section-gap)",

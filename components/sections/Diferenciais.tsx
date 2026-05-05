@@ -33,6 +33,7 @@ export default function Diferenciais() {
 
   return (
     <section
+      className="texture-light"
       style={{
         background: "var(--color-bg-alt)",
         paddingTop: "var(--section-gap)",
