@@ -92,9 +92,10 @@
       "titulo": "Acceso administrativo",
       "email_label": "Correo",
       "email_placeholder": "tu@correo.com",
-      "botao": "Enviar enlace de acceso",
-      "sucesso": "Enlace enviado. Revisa tu correo.",
-      "erro": "Error al enviar. Inténtalo de nuevo."
+      "senha_label": "Contraseña",
+      "botao": "Entrar",
+      "carregando": "Entrando...",
+      "erro": "Correo o contraseña incorrectos. Inténtalo de nuevo."
     },
     "midias": "Medios",
     "textos": "Textos",

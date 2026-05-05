@@ -92,9 +92,10 @@
       "titulo": "Admin access",
       "email_label": "Email",
       "email_placeholder": "you@email.com",
-      "botao": "Send magic link",
-      "sucesso": "Link sent. Check your email.",
-      "erro": "Could not send. Please try again."
+      "senha_label": "Password",
+      "botao": "Sign in",
+      "carregando": "Signing in...",
+      "erro": "Incorrect email or password. Try again."
     },
     "midias": "Media",
     "textos": "Copy",

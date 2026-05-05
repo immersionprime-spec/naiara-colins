@@ -92,9 +92,10 @@
       "titulo": "Acesso Administrativo",
       "email_label": "E-mail",
       "email_placeholder": "seu@email.com",
-      "botao": "Enviar link de acesso",
-      "sucesso": "Link enviado! Verifique seu e-mail.",
-      "erro": "Erro ao enviar. Tente novamente."
+      "senha_label": "Senha",
+      "botao": "Entrar",
+      "carregando": "Entrando...",
+      "erro": "E-mail ou senha incorretos. Tente novamente."
     },
     "midias": "Mídias",
     "textos": "Textos",
