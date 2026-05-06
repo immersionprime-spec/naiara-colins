@@ -23,8 +23,8 @@ export default function CursorFollower() {
     if (window.matchMedia("(hover: none)").matches) return;
 
     const onMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX - 12);
-      mouseY.set(e.clientY - 12);
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
       if (!visible) setVisible(true);
     };
 
@@ -64,18 +64,31 @@ export default function CursorFollower() {
         left: 0,
         x,
         y,
-        width: isHovering ? 40 : 24,
-        height: isHovering ? 40 : 24,
+        width: isHovering ? 52 : 36,
+        height: isHovering ? 52 : 36,
         borderRadius: "50%",
-        border: `1.5px solid rgba(201,168,76,${isHovering ? 0.9 : 0.6})`,
-        background: isHovering ? "rgba(201,168,76,0.12)" : "transparent",
         zIndex: 99999,
         pointerEvents: "none",
-        opacity: visible ? 1 : 0,
-        transition: "width 200ms ease, height 200ms ease, background 200ms ease, border-color 200ms ease",
-        mixBlendMode: "normal",
+        opacity: visible ? (isHovering ? 1 : 0.55) : 0,
+        transition: "width 200ms ease, height 200ms ease, opacity 200ms ease",
+        transform: "translate(-50%, -50%)",
       }}
-    />
+    >
+      <img
+        src="/logo-circle.png"
+        alt=""
+        draggable={false}
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: "50%",
+          objectFit: "cover",
+          display: "block",
+          filter: isHovering ? "none" : "grayscale(20%)",
+          transition: "filter 200ms ease",
+        }}
+      />
+    </motion.div>
   );
 }
 
