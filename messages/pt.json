@@ -10,7 +10,10 @@
   },
   "hero": {
     "tagline": "Beleza com experiência",
-    "cta": "Agende sua experiência"
+    "credencial": "★★★★★ Google · Balneário Camboriú, SC",
+    "credencial_sub": "Salão premium no coração do Centro",
+    "cta": "Agende sua experiência",
+    "scroll": "Scroll"
   },
   "sobre": {
     "titulo": "Sobre a Naiara",
@@ -33,13 +36,19 @@
   "diferenciais": {
     "titulo": "Por que a Naiara Colin?",
     "item1": "Experiência premium desde a entrada",
+    "item1_desc": "Do primeiro contato ao resultado final, cada detalhe é pensado para você.",
     "item2": "Produtos profissionais exclusivos",
+    "item2_desc": "Apenas linhas profissionais de alto padrão para garantir resultado real.",
     "item3": "Ambiente pensado para você",
-    "item4": "Atendimento personalizado"
+    "item3_desc": "Um espaço de beleza urbano que cuida de você em cada sentido.",
+    "item4": "Atendimento personalizado",
+    "item4_desc": "Cada cliente é única. O atendimento também é."
   },
   "galeria": {
     "espaco_titulo": "O espaço",
-    "trabalho_titulo": "O trabalho"
+    "trabalho_titulo": "O trabalho",
+    "antes": "Antes",
+    "depois": "Depois"
   },
   "blog": {
     "titulo": "Blog",

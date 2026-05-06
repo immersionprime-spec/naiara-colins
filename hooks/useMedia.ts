@@ -10,6 +10,7 @@ export type MediaItem = {
   order: number;
   is_primary: boolean;
   signedUrl: string;
+  posterUrl?: string;
 };
 
 export function useMedia(section: string) {

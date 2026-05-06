@@ -9,6 +9,8 @@ declare global {
 
 export type WhatsAppSource =
   | "hero"
+  | "header"
+  | "menu-mobile"
   | "flutuante"
   | "rodape"
   | "cursos"

@@ -6,6 +6,8 @@ import { Link, usePathname, useRouter } from "@/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { activeSectionStore } from "@/lib/activeSectionStore";
+import { useMagnetic } from "@/hooks/useMagnetic";
 
 const CrownSVG = ({ size = 32 }: { size?: number }) => (
   <svg width={size} height={size * 0.7} viewBox="0 0 120 84" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -42,6 +44,14 @@ export default function Header({ locale }: { locale: string }) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+
+  const {
+    ref: ctaRef,
+    springX: ctaX,
+    springY: ctaY,
+    onMouseMove: ctaMouseMove,
+    onMouseLeave: ctaMouseLeave,
+  } = useMagnetic({ strength: 0.25, radius: 60 });
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -81,7 +91,12 @@ export default function Header({ locale }: { locale: string }) {
       const el = document.getElementById(id);
       if (!el) return;
       const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setActiveSection(id);
+            activeSectionStore.set(id);
+          }
+        },
         { threshold: 0.5 }
       );
       obs.observe(el);
@@ -89,6 +104,45 @@ export default function Header({ locale }: { locale: string }) {
     });
     return () => observers.forEach((o) => o.disconnect());
   }, []);
+
+  // Focus trap no menu mobile
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const overlay = document.getElementById("mobile-menu-overlay");
+    if (!overlay) return;
+
+    const focusableElements = overlay.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusableElements[0];
+    const last = focusableElements[focusableElements.length - 1];
+
+    first?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen]);
 
   const changeLocale = (code: string) => {
     localStorage.setItem("nc_locale", code);
@@ -121,7 +175,9 @@ export default function Header({ locale }: { locale: string }) {
         <Link href="/" aria-label="Naiara Colin Espaço de Beleza" style={{ textDecoration: "none" }}>
           <motion.div
             layoutId="crown-logo"
-            style={{ transform: scrolled ? "scale(0.85)" : "scale(1)", transition: "transform 300ms ease", display: "flex" }}
+            animate={{ scale: scrolled ? 0.85 : 1 }}
+            transition={{ duration: 0.3 }}
+            style={{ display: "flex" }}
           >
             <CrownSVG size={36} />
           </motion.div>
@@ -203,12 +259,15 @@ export default function Header({ locale }: { locale: string }) {
               ))}
             </div>
             {/* CTA */}
-            <a
+            <motion.a
               href={getWhatsAppLink("geral")}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => trackWhatsAppClick("hero")}
+              onClick={() => trackWhatsAppClick("header")}
+              ref={ctaRef as React.RefObject<HTMLAnchorElement>}
               style={{
+                x: ctaX,
+                y: ctaY,
                 border: "1px solid var(--color-gold)",
                 color: "var(--color-gold)",
                 padding: "10px 24px",
@@ -219,18 +278,21 @@ export default function Header({ locale }: { locale: string }) {
                 textDecoration: "none",
                 transition: "background 200ms, color 200ms",
                 cursor: "url('/cursors/dot-gold.svg') 8 8, pointer",
+                display: "inline-block",
               }}
+              onMouseMove={ctaMouseMove}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLAnchorElement).style.background = "var(--color-gold)";
                 (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-inverse)";
               }}
               onMouseLeave={(e) => {
+                ctaMouseLeave();
                 (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
                 (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-gold)";
               }}
             >
               {t("agendar")}
-            </a>
+            </motion.a>
           </div>
         )}
 
@@ -253,6 +315,7 @@ export default function Header({ locale }: { locale: string }) {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
+            id="mobile-menu-overlay"
             key="mobile-menu"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -290,7 +353,7 @@ export default function Header({ locale }: { locale: string }) {
               href={getWhatsAppLink("geral")}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => { setMenuOpen(false); trackWhatsAppClick("hero"); }}
+              onClick={() => { setMenuOpen(false); trackWhatsAppClick("menu-mobile"); }}
               animate={{ scale: [1, 1.04, 1] }}
               transition={{ duration: 0.5, delay: 0.3 }}
               style={{

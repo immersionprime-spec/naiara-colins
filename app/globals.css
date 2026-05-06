@@ -143,7 +143,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior gerenciado pelo Lenis */
 }
 
 body {
@@ -263,4 +263,79 @@ section[id] {
 .texture-light > * {
   position: relative;
   z-index: 1;
+}
+
+/* ── Acessibilidade: redução de movimento ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Exceções: transições de tema e foco mantidas para usabilidade */
+  body {
+    transition:
+      background-color 0ms,
+      color 0ms !important;
+  }
+}
+
+/* ── Gradient border animado — cards de serviço ─────────── */
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes borderRotate {
+  to {
+    --border-angle: 360deg;
+  }
+}
+
+.service-card-hover {
+  --border-width: 1px;
+  position: relative;
+  border: none !important;
+  background-clip: padding-box;
+}
+
+.service-card-hover::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--border-width));
+  border-radius: calc(var(--card-radius) + var(--border-width));
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 20%,
+    #c9a84c 40%,
+    rgba(201, 168, 76, 0.3) 60%,
+    transparent 80%
+  );
+  animation: borderRotate 2.5s linear infinite;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.service-card-hover:hover::before,
+.service-card-hover:focus-within::before {
+  opacity: 1;
+}
+
+/* Fallback para browsers sem suporte a @property */
+@supports not (background: conic-gradient(from 1deg, red, blue)) {
+  .service-card-hover::before {
+    background: var(--color-gold);
+  }
+}
+
+@media (hover: none) {
+  .service-card-hover::before {
+    display: none;
+  }
 }

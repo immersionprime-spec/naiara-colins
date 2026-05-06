@@ -8,31 +8,33 @@ export async function POST(request: Request) {
     if (!path || !section || !bucket) {
       return NextResponse.json({ error: "Parâmetros em falta." }, { status: 400 });
     }
-
     if (bucket !== "media" && bucket !== "blog-covers") {
       return NextResponse.json({ error: "Bucket inválido." }, { status: 400 });
     }
-
     if (bucket !== "media") {
       return NextResponse.json({ success: true, path });
     }
 
     const mediaType: "image" | "video" = type === "video" ? "video" : "image";
-
     const supabase = createServiceRoleClient();
-    const { error } = await supabase.from("media").insert({
-      section,
-      url: path,
-      type: mediaType,
-      is_primary: isPrimary === true,
-      order: typeof order === "number" ? order : 0,
-    });
+    const { data, error } = await supabase
+      .from("media")
+      .insert({
+        section,
+        url: path,
+        type: mediaType,
+        is_primary: isPrimary === true,
+        order: typeof order === "number" ? order : 0,
+      })
+      .select("id, section, url, type, order, is_primary")
+      .single();
 
-    if (error) {
+    if (error || !data) {
       return NextResponse.json({ error: "Conexão instável. Tente novamente." }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, path });
+    // Retorna o item completo para atualização local sem round-trip
+    return NextResponse.json({ success: true, path, item: data });
   } catch {
     return NextResponse.json({ error: "Conexão instável. Tente novamente." }, { status: 500 });
   }

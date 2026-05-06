@@ -2,6 +2,7 @@
 
 import { revealVariants, staggerContainer } from "@/lib/motion";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import SectionTitle from "../ui/SectionTitle";
@@ -113,19 +114,18 @@ export default function InstagramFeed() {
                     cursor: "url('/cursors/dot-gold.svg') 8 8, pointer",
                   }}
                 >
-                  <img
+                  <Image
                     src={imgSrc}
                     alt={post.caption ? post.caption.slice(0, 80) : "Post Naiara Colin"}
+                    fill
+                    sizes="(max-width: 768px) 33vw, (max-width: 1280px) 22vw, 280px"
                     style={{
-                      width: "100%",
-                      height: "100%",
                       objectFit: "cover",
-                      display: "block",
                       transition: "transform 300ms ease",
                     }}
-                    loading="lazy"
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.06)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                    unoptimized
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1.06)")}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1)")}
                   />
                   {/* Overlay dourado no hover */}
                   <div

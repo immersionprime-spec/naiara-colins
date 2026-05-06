@@ -1,4 +1,6 @@
 import PageTransition from "@/components/PageTransition";
+import CursorFollower from "@/components/CursorFollower";
+import LenisProvider from "@/components/LenisProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -25,6 +27,8 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <LenisProvider />
+      <CursorFollower />
       <PageTransition>{children}</PageTransition>
     </NextIntlClientProvider>
   );

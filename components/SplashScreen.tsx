@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useEffect, useState } from "react";
 
 const CrownSVG = ({ size = 120 }: { size?: number }) => (
@@ -27,6 +28,7 @@ const CrownSVG = ({ size = 120 }: { size?: number }) => (
 );
 
 export default function SplashScreen() {
+  const reducedMotion = useReducedMotion();
   const [visible, setVisible] = useState(true);
   const [minTimeDone, setMinTimeDone] = useState(false);
   const [posterReady, setPosterReady] = useState(false);
@@ -54,7 +56,7 @@ export default function SplashScreen() {
   }, [minTimeDone, posterReady]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="popLayout">
       {visible && (
         <motion.div
           key="splash"
@@ -71,16 +73,15 @@ export default function SplashScreen() {
             justifyContent: "center",
           }}
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.3 } }}
+          exit={{ opacity: 0, transition: { duration: 0.4, delay: 0.1 } }}
         >
-          <motion.div
-            layoutId="crown-logo"
-            animate={{
-              opacity: [0, 1, 1, 0.9],
-            }}
-            transition={{ duration: 1.5, times: [0, 0.3, 0.8, 1] }}
-          >
-            <CrownSVG size={120} />
+          <motion.div layoutId="crown-logo">
+            <motion.div
+              animate={reducedMotion ? { opacity: 1 } : { opacity: [0, 1, 1, 1] }}
+              transition={reducedMotion ? { duration: 0 } : { duration: 1.5, times: [0, 0.3, 0.8, 1] }}
+            >
+              <CrownSVG size={120} />
+            </motion.div>
           </motion.div>
         </motion.div>
       )}

@@ -1,8 +1,9 @@
 "use client";
 
 import { trackWhatsAppClick } from "@/lib/analytics";
-import { getWhatsAppLink } from "@/lib/whatsapp";
+import { activeSectionStore } from "@/lib/activeSectionStore";
 import { AnimatePresence, motion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useEffect, useState } from "react";
 
 const WhatsAppIcon = () => (
@@ -13,16 +14,35 @@ const WhatsAppIcon = () => (
 );
 
 export default function WhatsAppFloat() {
+  const reducedMotion = useReducedMotion();
   const [show, setShow] = useState(false);
+  const [activeSection, setActiveSection] = useState(activeSectionStore.get());
 
   useEffect(() => {
     const timer = setTimeout(() => setShow(true), 3000);
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    return activeSectionStore.subscribe(setActiveSection);
+  }, []);
+
+  function getContextualLink(section: string): string {
+    const base = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, "") || "5547997923415"}`;
+    const messages: Record<string, string> = {
+      galeria: "Olá, Nay! Vi a galeria de trabalhos no site e adorei. Gostaria de agendar.",
+      depoimentos: "Olá, Nay! Li os depoimentos e gostaria de agendar minha experiência.",
+      servicos: "Olá, Nay! Vi os serviços no site e gostaria de saber mais.",
+      cursos: "Olá! Tenho interesse em saber mais sobre os cursos.",
+      sobre: "Olá, Nay! Adorei conhecer sua história. Gostaria de agendar.",
+    };
+    const message = messages[section] ?? "Olá, Nay! Vi o site e gostaria de agendar.";
+    return `${base}?text=${encodeURIComponent(message)}`;
+  }
+
   const handleClick = () => {
     trackWhatsAppClick("flutuante");
-    window.open(getWhatsAppLink("geral"), "_blank", "noopener,noreferrer");
+    window.open(getContextualLink(activeSection), "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -61,7 +81,7 @@ export default function WhatsAppFloat() {
               70% { box-shadow: 0 0 0 12px rgba(201,168,76,0); }
               100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
             }
-            .whatsapp-float { animation: waPulse 3s infinite; }
+            ${!reducedMotion ? '.whatsapp-float { animation: waPulse 3s infinite; }' : ''}
             .whatsapp-float:hover { animation: none; }
           `}</style>
         </motion.button>

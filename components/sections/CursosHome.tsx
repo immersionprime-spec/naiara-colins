@@ -3,6 +3,7 @@
 import { revealVariants } from "@/lib/motion";
 import Button from "@/components/ui/Button";
 import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
@@ -96,11 +97,16 @@ export default function CursosHome({ imageUrl }: { imageUrl?: string }) {
           style={{ y, flex: 1, overflow: "hidden", borderRadius: "var(--card-radius)" }}
         >
           {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt="Bastidores dos cursos Naiara Colin"
-              style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }}
-            />
+            <div style={{ position: "relative", width: "100%", aspectRatio: "4/3" }}>
+              <Image
+                src={imageUrl}
+                alt="Bastidores dos cursos Naiara Colin"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                style={{ objectFit: "cover" }}
+                unoptimized={imageUrl.includes("token=")}
+              />
+            </div>
           ) : (
             <div style={{
               width: "100%",

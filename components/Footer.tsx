@@ -6,6 +6,7 @@ import { getWhatsAppLink } from "@/lib/whatsapp";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useBusinessHours } from "@/hooks/useBusinessHours";
 
 const CrownLogo = () => (
   <svg width="48" height="34" viewBox="0 0 120 84" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,6 +37,7 @@ export default function Footer() {
   const t = useTranslations("footer");
   const [tooltip, setTooltip] = useState(false);
   const [phoneTooltip, setPhoneTooltip] = useState(false);
+  const businessStatus = useBusinessHours();
 
   const address = "Rua 1500, 397 — Centro, Balneário Camboriú, SC";
   const phone = "+55 47 99792-3415";
@@ -134,14 +136,48 @@ export default function Footer() {
         </div>
 
         {/* Hours */}
-        <p style={{
-          fontFamily: "var(--font-serif)",
-          fontStyle: "italic",
-          fontSize: "var(--text-body-sm)",
-          color: "var(--color-text-muted)",
-        }}>
-          {t("horario")}
-        </p>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+          <p style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: "var(--text-body-sm)",
+            color: "var(--color-text-muted)",
+          }}>
+            {t("horario")}
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span
+              style={{
+                display: "inline-block",
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: businessStatus.isOpen ? "#4caf7d" : "#e55555",
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 11,
+                color: businessStatus.isOpen ? "#4caf7d" : "var(--color-text-muted)",
+                fontWeight: businessStatus.isOpen ? 600 : 400,
+              }}
+            >
+              {businessStatus.label}
+            </span>
+            <span style={{ color: "var(--color-border)", fontSize: 11 }}>·</span>
+            <span
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 11,
+                color: "var(--color-text-muted)",
+              }}
+            >
+              {businessStatus.nextInfo}
+            </span>
+          </div>
+        </div>
 
         {/* Phone */}
         <div style={{ position: "relative" }}>

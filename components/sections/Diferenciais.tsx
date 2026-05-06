@@ -25,10 +25,10 @@ export default function Diferenciais() {
   }, []);
 
   const items = [
-    { icon: icons[0], title: t("item1") },
-    { icon: icons[1], title: t("item2") },
-    { icon: icons[2], title: t("item3") },
-    { icon: icons[3], title: t("item4") },
+    { icon: icons[0], title: t("item1"), desc: t("item1_desc") },
+    { icon: icons[1], title: t("item2"), desc: t("item2_desc") },
+    { icon: icons[2], title: t("item3"), desc: t("item3_desc") },
+    { icon: icons[3], title: t("item4"), desc: t("item4_desc") },
   ];
 
   return (
@@ -87,6 +87,19 @@ export default function Diferenciais() {
               >
                 {item.title}
               </h3>
+              {item.desc && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "var(--text-body-sm)",
+                    color: "var(--color-text-muted)",
+                    lineHeight: "var(--leading-relaxed)",
+                    maxWidth: "220px",
+                  }}
+                >
+                  {item.desc}
+                </p>
+              )}
             </motion.div>
           ))}
         </motion.div>

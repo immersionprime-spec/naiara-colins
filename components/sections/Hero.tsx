@@ -4,12 +4,15 @@ import { trackWhatsAppClick } from "@/lib/analytics";
 import { heroLeftVariants, heroRightVariants, revealVariants } from "@/lib/motion";
 import { getWhatsAppLink } from "@/lib/whatsapp";
 import { useMedia } from "@/hooks/useMedia";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import Button from "../ui/Button";
+import RevealText from "../ui/RevealText";
+import MagneticButton from "../ui/MagneticButton";
+import GoldParticles from "../ui/GoldParticles";
 
-function VideoPane({ url, isPrimary, side }: { url: string; isPrimary?: boolean; side?: "left" | "right" }) {
+function VideoPane({ url, isPrimary, side, poster }: { url: string; isPrimary?: boolean; side?: "left" | "right"; poster?: string }) {
   const [loading, setLoading] = useState(true);
   const [timedOut, setTimedOut] = useState(false);
 
@@ -34,6 +37,7 @@ function VideoPane({ url, isPrimary, side }: { url: string; isPrimary?: boolean;
         <video
           key={url}
           autoPlay muted loop playsInline preload="metadata"
+          poster={poster || undefined}
           onLoadedData={() => {
             setLoading(false);
             if (isPrimary) window.dispatchEvent(new Event("hero-poster-ready"));
@@ -75,6 +79,7 @@ function VideoPane({ url, isPrimary, side }: { url: string; isPrimary?: boolean;
 
 export default function Hero() {
   const t = useTranslations("hero");
+  const reducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
   const { items } = useMedia("hero");
 
@@ -97,40 +102,161 @@ export default function Hero() {
       <div style={{ position: "absolute", inset: 0, display: "flex" }}>
         {isMobile ? (
           <div style={{ flex: 1, height: "100%" }}>
-            <VideoPane url={primary?.signedUrl ?? ""} isPrimary side="left" />
+            <VideoPane url={primary?.signedUrl ?? ""} isPrimary side="left" poster={primary?.posterUrl ?? ""} />
           </div>
         ) : (
           <>
-            <motion.div variants={heroLeftVariants} initial="hidden" animate="visible" style={{ flex: 1, height: "100%" }}>
-              <VideoPane url={primary?.signedUrl ?? ""} isPrimary side="left" />
+            <motion.div
+              variants={reducedMotion ? undefined : heroLeftVariants}
+              initial={reducedMotion ? { opacity: 1 } : "hidden"}
+              animate={reducedMotion ? { opacity: 1 } : "visible"}
+              style={{ flex: 1, height: "100%" }}
+            >
+              <VideoPane url={primary?.signedUrl ?? ""} isPrimary side="left" poster={primary?.posterUrl ?? ""} />
             </motion.div>
-            <motion.div variants={heroRightVariants} initial="hidden" animate="visible" style={{ flex: 1, height: "100%" }}>
-              <VideoPane url={secondary?.signedUrl ?? ""} side="right" />
+            <motion.div
+              variants={reducedMotion ? undefined : heroRightVariants}
+              initial={reducedMotion ? { opacity: 1 } : "hidden"}
+              animate={reducedMotion ? { opacity: 1 } : "visible"}
+              style={{ flex: 1, height: "100%" }}
+            >
+              <VideoPane url={secondary?.signedUrl ?? ""} side="right" poster={secondary?.posterUrl ?? ""} />
             </motion.div>
           </>
         )}
       </div>
+
+      <GoldParticles />
 
       <div style={{
         position: "absolute", inset: 0, zIndex: 10,
         display: "flex", flexDirection: "column", alignItems: "center",
         justifyContent: "center", gap: 32, padding: "0 24px", textAlign: "center",
       }}>
-        <motion.h1
-          variants={revealVariants} initial="hidden" animate="visible"
-          transition={{ delay: 0.6 } as never}
+        <RevealText
+          text={t("tagline")}
+          delay={0.6}
+          as="h1"
           style={{
-            fontFamily: "var(--font-serif)", fontSize: "var(--text-display)",
-            lineHeight: "var(--leading-tight)", color: "#ffffff",
-            textShadow: "0 2px 40px rgba(0,0,0,0.8)", maxWidth: "80vw",
+            fontFamily: "var(--font-serif)",
+            fontSize: "var(--text-display)",
+            lineHeight: "var(--leading-tight)",
+            color: "#ffffff",
+            textShadow: "0 2px 40px rgba(0,0,0,0.8)",
+            maxWidth: "80vw",
+          }}
+        />
+        <motion.div variants={revealVariants} initial="hidden" animate="visible" transition={{ delay: 0.9 } as never}>
+          <MagneticButton
+            href={getWhatsAppLink("geral")}
+            onClick={() => trackWhatsAppClick("hero")}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid var(--color-gold)",
+              color: "var(--color-gold)",
+              background: "transparent",
+              padding: "14px 32px",
+              fontFamily: "var(--font-sans)",
+              fontWeight: 500,
+              letterSpacing: "0.05em",
+              textDecoration: "none",
+              cursor: "url('/cursors/dot-gold.svg') 8 8, pointer",
+              transition: "background 200ms ease, color 200ms ease",
+              userSelect: "none",
+            }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t("cta")}
+          </MagneticButton>
+        </motion.div>
+
+        <motion.div
+          variants={revealVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 1.2 } as never}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 4,
+            marginTop: 8,
           }}
         >
-          {t("tagline")}
-        </motion.h1>
-        <motion.div variants={revealVariants} initial="hidden" animate="visible" transition={{ delay: 0.9 } as never}>
-          <Button href={getWhatsAppLink("geral")} onClick={() => trackWhatsAppClick("hero")} variant="primary">
-            {t("cta")}
-          </Button>
+          <p
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: 12,
+              letterSpacing: "0.08em",
+              color: "rgba(201,168,76,0.9)",
+              textAlign: "center",
+            }}
+          >
+            {t("credencial")}
+          </p>
+          <p
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontSize: 11,
+              color: "rgba(255,255,255,0.45)",
+              letterSpacing: "0.05em",
+              textAlign: "center",
+            }}
+          >
+            {t("credencial_sub")}
+          </p>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.4, duration: 0.6, ease: [0.0, 0.0, 0.2, 1] }}
+          style={{
+            position: "absolute",
+            bottom: 32,
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 8,
+            cursor: "default",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: 10,
+              letterSpacing: "0.2em",
+              color: "rgba(255,255,255,0.5)",
+              textTransform: "uppercase",
+            }}
+          >
+            {t("scroll")}
+          </span>
+          <motion.div
+            animate={reducedMotion ? {} : { y: [0, 6, 0] }}
+            transition={reducedMotion ? {} : { duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="rgba(201,168,76,0.7)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </motion.div>
         </motion.div>
       </div>
     </section>

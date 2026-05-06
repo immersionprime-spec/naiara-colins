@@ -3,10 +3,11 @@
 import { useMedia } from "@/hooks/useMedia";
 
 import { revealVariants } from "@/lib/motion";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 type MediaItem = { id: string; signedUrl?: string; url: string; order: number };
 
@@ -155,12 +156,19 @@ function GaleriaEspaco({ items, isMobile }: { items: MediaItem[]; isMobile: bool
 }
 
 // ─── SliderCard — fora de GaleriaTrabalho ──────────────────────────────────
-function SliderCard({ before, after }: {
+function SliderCard({ before, after, pairIndex = 0 }: {
   before: MediaItem;
   after: MediaItem;
+  pairIndex?: number;
 }) {
+  const t = useTranslations("galeria");
   const [position, setPosition] = useState(50);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const reducedMotion = useReducedMotion();
+  const inViewRef = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(inViewRef, { once: true, margin: "0px 0px -100px 0px" });
+  const [hasRevealed, setHasRevealed] = useState(false);
+  const [revealAnimating, setRevealAnimating] = useState(false);
   const dragging = useRef(false);
 
   const CARD_STYLE: import("react").CSSProperties = {
@@ -174,6 +182,7 @@ function SliderCard({ before, after }: {
   };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (revealAnimating) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     dragging.current = true;
   };
@@ -186,9 +195,53 @@ function SliderCard({ before, after }: {
 
   const stopDrag = () => { dragging.current = false; };
 
+  const setRefs = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    inViewRef.current = node;
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setHasRevealed(true);
+      return;
+    }
+    if (!isInView || hasRevealed) return;
+
+    setRevealAnimating(true);
+    const startPos = 95;
+    const endPos = 50;
+    const duration = 1500;
+    setPosition(startPos);
+
+    const startTime = Date.now();
+    let raf: number | null = null;
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setPosition(startPos + (endPos - startPos) * eased);
+
+      if (progress < 1) {
+        raf = requestAnimationFrame(animate);
+      } else {
+        setRevealAnimating(false);
+        setHasRevealed(true);
+      }
+    };
+
+    const timeout = window.setTimeout(() => {
+      raf = requestAnimationFrame(animate);
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timeout);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [isInView, hasRevealed, reducedMotion]);
+
   return (
     <div
-      ref={containerRef}
+      ref={setRefs}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={stopDrag}
@@ -198,16 +251,28 @@ function SliderCard({ before, after }: {
     >
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
         {before.signedUrl
-          ? <img src={before.signedUrl} alt="Antes" draggable={false}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ? <img
+              src={before.signedUrl}
+              alt={`${t("antes")} — transformação ${pairIndex + 1}`}
+              draggable={false}
+              loading="lazy"
+              decoding="async"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
           : <CrownFallback />
         }
       </div>
       <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 0 0 ${position}%)`, pointerEvents: "none" }}>
         <div style={{ position: "absolute", inset: 0 }}>
           {after.signedUrl
-            ? <img src={after.signedUrl} alt="Depois" draggable={false}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ? <img
+                src={after.signedUrl}
+                alt={`${t("depois")} — transformação ${pairIndex + 1}`}
+                draggable={false}
+                loading="lazy"
+                decoding="async"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
             : <CrownFallback />
           }
         </div>
@@ -225,6 +290,47 @@ function SliderCard({ before, after }: {
           boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
           pointerEvents: "none",
         }}>↔</div>
+      </div>
+
+      {/* Labels antes/depois */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 10,
+          left: 10,
+          background: "rgba(10,10,10,0.7)",
+          color: "rgba(255,255,255,0.8)",
+          fontFamily: "var(--font-sans)",
+          fontSize: 10,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          padding: "3px 8px",
+          borderRadius: 2,
+          pointerEvents: "none",
+          zIndex: 2,
+        }}
+      >
+        {t("antes")}
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 10,
+          right: 10,
+          background: "rgba(201,168,76,0.85)",
+          color: "#1a1a1a",
+          fontFamily: "var(--font-sans)",
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          padding: "3px 8px",
+          borderRadius: 2,
+          pointerEvents: "none",
+          zIndex: 2,
+        }}
+      >
+        {t("depois")}
       </div>
     </div>
   );
@@ -316,6 +422,7 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
                   <SliderCard
                     before={pair.before ?? { id: `ph-b-${idx}`, signedUrl: "", url: "", order: idx * 2 }}
                     after={pair.after  ?? { id: `ph-a-${idx}`, signedUrl: "", url: "", order: idx * 2 + 1 }}
+                    pairIndex={idx}
                   />
                 </div>
               ))}
@@ -354,6 +461,7 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
               key={pair.before?.id ?? pair.after?.id ?? `ph-${idx}`}
               before={pair.before ?? { id: `ph-b-${idx}`, signedUrl: "", url: "", order: idx * 2 }}
               after={pair.after ?? { id: `ph-a-${idx}`, signedUrl: "", url: "", order: idx * 2 + 1 }}
+              pairIndex={idx}
             />
           ))}
         </div>

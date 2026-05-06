@@ -11,11 +11,60 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || site
   ),
-  title: "Naiara Colin Espaço de Beleza",
-  description: "Salão de beleza premium em Balneário Camboriú, SC.",
+  title: {
+    default: "Naiara Colin Espaço de Beleza | Salão Premium em Balneário Camboriú",
+    template: "%s | Naiara Colin",
+  },
+  description:
+    "Salão de beleza premium em Balneário Camboriú, SC. Mechas, cortes, nail design, estética avançada e muito mais. Agende pelo WhatsApp.",
+  keywords: [
+    "salão de beleza Balneário Camboriú",
+    "mechas Balneário Camboriú",
+    "nail design BC",
+    "maquiagem profissional Balneário Camboriú",
+    "cílios Balneário Camboriú",
+    "lash lifting BC",
+    "estética avançada Balneário Camboriú",
+    "Naiara Colin",
+  ],
   icons: {
     icon: "/favicon.svg",
     apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    title: "Naiara Colin Espaço de Beleza",
+    description:
+      "Salão de beleza premium em Balneário Camboriú, SC. Agende sua experiência.",
+    url: site,
+    siteName: "Naiara Colin Espaço de Beleza",
+    images: [
+      {
+        url: `${site}/og/default.png`,
+        width: 1200,
+        height: 630,
+        alt: "Naiara Colin Espaço de Beleza — Salão Premium em Balneário Camboriú",
+      },
+    ],
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Naiara Colin Espaço de Beleza",
+    description:
+      "Salão de beleza premium em Balneário Camboriú, SC.",
+    images: [`${site}/og/default.png`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 

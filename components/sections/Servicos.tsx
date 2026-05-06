@@ -67,18 +67,21 @@ function ServiceItem({ service, isMobile }: { service: Service; isMobile: boolea
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "0px 0px -40px 0px" }}
+      className="service-card-hover"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         padding: "16px 20px",
         borderRadius: "var(--card-radius)",
-        border: hovered ? "1px solid #C9A84C" : "1px solid var(--color-border)",
+        border: hovered ? "none" : "1px solid var(--color-border)",
         background: hovered ? "rgba(201,168,76,0.04)" : "transparent",
         transform: hovered ? "translateY(-4px)" : "translateY(0)",
         transition: "all 200ms ease",
         display: "flex",
         flexDirection: "column",
         gap: 6,
+        position: "relative",
+        zIndex: 0,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

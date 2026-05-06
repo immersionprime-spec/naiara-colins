@@ -157,6 +157,26 @@ export default function Depoimentos({ data }: { data: Testimonial[] }) {
                     {item.name}
                   </span>
                 </div>
+
+                {/* Stars */}
+                {item.stars > 0 && (
+                  <div style={{ display: "flex", gap: 4, marginTop: 12 }}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <svg
+                        key={i}
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill={i < item.stars ? "#C9A84C" : "none"}
+                        stroke="#C9A84C"
+                        strokeWidth="1.5"
+                        aria-hidden="true"
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             </AnimatePresence>
           </div>

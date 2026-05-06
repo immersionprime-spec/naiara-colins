@@ -18,6 +18,7 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 import { getMediaBySection } from "@/lib/media";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { setRequestLocale } from "next-intl/server";
+import { LayoutGroup } from "framer-motion";
 
 type ServiceRow = {
   id: string;
@@ -95,7 +96,7 @@ export default async function HomePage({
   const cursosImage = cursosMedia[0]?.signedUrl ?? "";
 
   return (
-    <>
+    <LayoutGroup id="nc-crown">
       <SplashScreen />
       <Header locale={locale} />
       <main>
@@ -113,6 +114,6 @@ export default async function HomePage({
       <WhatsAppFloat />
       <LgpdBanner />
       <SectionTitleObserver />
-    </>
+    </LayoutGroup>
   );
 }

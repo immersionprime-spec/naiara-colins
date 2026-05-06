@@ -5,6 +5,7 @@ import { useMedia } from "@/hooks/useMedia";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import RevealText from "../ui/RevealText";
 
 export default function Sobre() {
   const { items } = useMedia("sobre");
@@ -62,6 +63,7 @@ export default function Sobre() {
               loop
               playsInline
               preload="metadata"
+              poster=""
               style={{
                 width: "100%",
                 aspectRatio: "9/16",
@@ -106,16 +108,17 @@ export default function Sobre() {
             paddingTop: isMobile ? 0 : 32,
           }}
         >
-          <h2
+          <RevealText
+            text={t("titulo")}
+            delay={0}
+            as="h2"
             style={{
               fontFamily: "var(--font-serif)",
               fontSize: "var(--text-h1)",
               lineHeight: "var(--leading-snug)",
               color: "var(--color-text)",
             }}
-          >
-            {t("titulo")}
-          </h2>
+          />
 
           <div
             style={{
