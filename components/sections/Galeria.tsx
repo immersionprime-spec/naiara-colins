@@ -231,7 +231,7 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
           }
         </div>
         {/* After clipped */}
-        <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 ${100 - position}% 0 0)` }}>
+        <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 0 0 ${position}%)` }}>
           <div style={{ position: "absolute", inset: 0 }}>
             {after.signedUrl
               ? <img src={after.signedUrl} alt="Depois" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
