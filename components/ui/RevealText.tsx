@@ -58,21 +58,36 @@ export default function RevealText({
           key={i}
           style={{ overflow: "hidden", display: "block", lineHeight: "inherit" }}
         >
-          <motion.span
-            variants={wordVariants}
-            initial="hidden"
-            animate={triggerOnView ? undefined : "visible"}
-            whileInView={triggerOnView ? "visible" : undefined}
-            viewport={triggerOnView ? { once: true, margin: "0px 0px -40px 0px" } : undefined}
-            transition={{
-              delay: delay + i * 0.08,
-              duration: 0.7,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            style={{ display: "block" }}
-          >
-            {word}
-          </motion.span>
+          {triggerOnView ? (
+            <motion.span
+              variants={wordVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "0px 0px -40px 0px" }}
+              transition={{
+                delay: delay + i * 0.08,
+                duration: 0.7,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              style={{ display: "block" }}
+            >
+              {word}
+            </motion.span>
+          ) : (
+            <motion.span
+              variants={wordVariants}
+              initial="hidden"
+              animate="visible"
+              transition={{
+                delay: delay + i * 0.08,
+                duration: 0.7,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              style={{ display: "block" }}
+            >
+              {word}
+            </motion.span>
+          )}
         </span>
       ))}
     </Tag>
