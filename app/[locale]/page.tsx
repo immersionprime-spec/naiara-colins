@@ -83,14 +83,10 @@ export default async function HomePage({
   setRequestLocale(locale);
 
   const [
-    espacoMedia,
-    trabalhoMedia,
     cursosMedia,
     services,
     testimonials,
   ] = await Promise.all([
-    getMediaBySection("galeria-espaco"),
-    getMediaBySection("galeria-trabalho"),
     getMediaBySection("cursos"),
     fetchServices(),
     fetchTestimonials(),
@@ -107,7 +103,7 @@ export default async function HomePage({
         <Sobre />
         <Servicos data={services} />
         <Diferenciais />
-        <Galeria espaco={espacoMedia} trabalho={trabalhoMedia} />
+        <Galeria />
         <Depoimentos data={testimonials} />
         <InstagramFeed />
         <CursosHome imageUrl={cursosImage} />

@@ -63,7 +63,7 @@ async function uploadFile(file: File, section: string, isPrimary = false): Promi
       const regRes = await fetch("/api/media/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path, section, bucket: "media", isPrimary, type: "video" }),
+        body: JSON.stringify({ path, section, bucket: "media", isPrimary, type: "video", order: 0 }),
       });
       if (!regRes.ok) throw new Error("register failed");
 
@@ -167,7 +167,8 @@ async function doUpload(
   file: File,
   section: string,
   isPrimary: boolean,
-  onProgress: (p: number) => void
+  onProgress: (p: number) => void,
+  order = 0
 ): Promise<boolean> {
   const isVideo = file.type.startsWith("video/");
 
@@ -199,7 +200,7 @@ async function doUpload(
       const reg = await fetch("/api/media/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path, section, bucket: "media", isPrimary, type: "video" }),
+        body: JSON.stringify({ path, section, bucket: "media", isPrimary, type: "video", order: 0 }),
       });
       if (!reg.ok) return false;
       onProgress(100);
@@ -219,6 +220,7 @@ async function doUpload(
     };
     xhr.onload  = () => { onProgress(100); resolve(xhr.status >= 200 && xhr.status < 300); };
     xhr.onerror = () => resolve(false);
+    fd.append("order", String(order));
     xhr.open("POST", "/api/media/upload");
     xhr.send(fd);
   });
@@ -299,9 +301,7 @@ function SingleSlot({ label, hint, accept, item, section, isPrimary, onRefresh }
   );
 }
 
-function GaleriaSlots({ section, accept, items, onRefresh }: {
-  section: string; accept: string; items: MediaItem[]; onRefresh: () => void;
-}) {
+function GaleriaEspacoAdmin({ items, onRefresh }: { items: MediaItem[]; onRefresh: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<UploadState>("idle");
   const [progress, setProgress] = useState(0);
@@ -310,7 +310,7 @@ function GaleriaSlots({ section, accept, items, onRefresh }: {
     const file = e.target.files?.[0];
     if (!file) return;
     setState("uploading"); setProgress(0);
-    const ok = await doUpload(file, section, false, setProgress);
+    const ok = await doUpload(file, "galeria-espaco", false, setProgress, items.length);
     setState(ok ? "done" : "error");
     if (ok) { setTimeout(() => setState("idle"), 2000); onRefresh(); }
     if (inputRef.current) inputRef.current.value = "";
@@ -326,10 +326,11 @@ function GaleriaSlots({ section, accept, items, onRefresh }: {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {items.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: 10 }}>
-          {items.map(item => (
+          {items.map((item, i) => (
             <div key={item.id} style={{ background: "#131313", border: "1px solid #1e1e1e", borderRadius: 8, overflow: "hidden" }}>
-              <div style={{ height: 90, display: "flex", alignItems: "center", justifyContent: "center", background: "#0d0d0d" }}>
-                <span style={{ fontSize: 24 }}>{item.type === "video" ? "🎬" : "🖼️"}</span>
+              <div style={{ height: 90, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#0d0d0d", gap: 4 }}>
+                <span style={{ fontSize: 20 }}>🖼️</span>
+                <span style={{ fontFamily: "DM Sans, sans-serif", fontSize: 10, color: "#555" }}>Foto {i + 1}</span>
               </div>
               <button onClick={() => handleRemove(item.id)} style={{ width: "100%", padding: "6px 0", background: "transparent", border: "none", borderTop: "1px solid #1e1e1e", color: "#e55555", fontFamily: "DM Sans, sans-serif", fontSize: 11, cursor: "pointer" }}>
                 Remover
@@ -338,7 +339,6 @@ function GaleriaSlots({ section, accept, items, onRefresh }: {
           ))}
         </div>
       )}
-
       {state === "uploading" && (
         <div>
           <div style={{ background: "#111", borderRadius: 4, height: 6, overflow: "hidden", marginBottom: 6 }}>
@@ -349,16 +349,211 @@ function GaleriaSlots({ section, accept, items, onRefresh }: {
       )}
       {state === "done"  && <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#4caf7d" }}>✓ Foto adicionada!</p>}
       {state === "error" && <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#e55555" }}>Erro no envio. Tente novamente.</p>}
-
       {state === "idle" && (
         <button onClick={() => inputRef.current?.click()} style={{ padding: "14px 0", background: "transparent", border: "1px dashed #2a2a2a", borderRadius: 8, color: "#666", fontFamily: "DM Sans, sans-serif", fontSize: 13, cursor: "pointer", width: "100%" }}>
           + Adicionar foto
         </button>
       )}
-      <input ref={inputRef} type="file" accept={accept} hidden onChange={handleFile} />
+      <input ref={inputRef} type="file" accept="image/*" hidden onChange={handleFile} />
     </div>
   );
 }
+
+// Par antes/depois individual
+function ParAnteDepois({ pairIndex, before, after, onRefresh }: {
+  pairIndex: number;
+  before: MediaItem | undefined;
+  after: MediaItem | undefined;
+  onRefresh: () => void;
+}) {
+  const beforeRef = useRef<HTMLInputElement>(null);
+  const afterRef  = useRef<HTMLInputElement>(null);
+  const [beforeState, setBeforeState] = useState<UploadState>("idle");
+  const [afterState,  setAfterState]  = useState<UploadState>("idle");
+  const [beforeProg,  setBeforeProg]  = useState(0);
+  const [afterProg,   setAfterProg]   = useState(0);
+
+  const upload = async (
+    file: File,
+    slot: "before" | "after",
+    current: MediaItem | undefined,
+    setState: (s: UploadState) => void,
+    setProg: (p: number) => void
+  ) => {
+    setState("uploading"); setProg(0);
+    if (current) await fetch(`/api/admin/media?id=${current.id}`, { method: "DELETE" });
+    const order = pairIndex * 2 + (slot === "before" ? 0 : 1);
+    const ok = await doUpload(file, "galeria-trabalho", false, setProg, order);
+    setState(ok ? "done" : "error");
+    if (ok) { setTimeout(() => setState("idle"), 2000); onRefresh(); }
+  };
+
+  const remove = async (item: MediaItem | undefined) => {
+    if (!item || !confirm("Remover esta foto?")) return;
+    await fetch(`/api/admin/media?id=${item.id}`, { method: "DELETE" });
+    onRefresh();
+  };
+
+  const SlotBox = ({
+    label, hint, color, item, state, progress, inputRef: ref,
+    setState: setS, setProg, slot, current,
+  }: {
+    label: string; hint: string; color: string;
+    item: MediaItem | undefined; state: UploadState; progress: number;
+    inputRef: React.RefObject<HTMLInputElement>;
+    setState: (s: UploadState) => void;
+    setProg: (p: number) => void;
+    slot: "before" | "after";
+    current: MediaItem | undefined;
+  }) => (
+    <div style={{ flex: 1, border: `1px solid ${item ? color + "44" : "#1a1a1a"}`, borderRadius: 10, padding: 16, background: "#0d0d0d", display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }} />
+        <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 13, fontWeight: 700, color: "#fff" }}>{label}</p>
+      </div>
+      <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 11, color: "#555" }}>{hint}</p>
+
+      <div style={{ height: 80, borderRadius: 6, border: `1px dashed ${item ? color + "66" : "#1e1e1e"}`, background: item ? "#131313" : "#080808", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 6 }}>
+        {item ? (
+          <>
+            <span style={{ fontSize: 22 }}>🖼️</span>
+            <span style={{ fontFamily: "DM Sans, sans-serif", fontSize: 10, color }}>Foto carregada ✓</span>
+          </>
+        ) : (
+          <>
+            <span style={{ fontSize: 18, opacity: 0.2 }}>📂</span>
+            <span style={{ fontFamily: "DM Sans, sans-serif", fontSize: 10, color: "#333" }}>Sem foto</span>
+          </>
+        )}
+      </div>
+
+      {state === "uploading" && (
+        <div>
+          <div style={{ background: "#111", borderRadius: 3, height: 4, overflow: "hidden", marginBottom: 4 }}>
+            <div style={{ height: "100%", background: color, width: `${progress}%`, transition: "width 0.3s" }} />
+          </div>
+          <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 10, color }}>{progress}%</p>
+        </div>
+      )}
+      {state === "done"  && <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 10, color: "#4caf7d" }}>✓ Salvo!</p>}
+      {state === "error" && <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 10, color: "#e55555" }}>Erro. Tente novamente.</p>}
+
+      {state === "idle" && (
+        <div style={{ display: "flex", gap: 6 }}>
+          <button
+            onClick={() => ref.current?.click()}
+            style={{ flex: 1, padding: "8px 0", background: color, color: "#0a0a0a", border: "none", borderRadius: 5, fontFamily: "DM Sans, sans-serif", fontWeight: 700, fontSize: 11, cursor: "pointer" }}
+          >
+            {item ? "Trocar" : "Enviar"}
+          </button>
+          {item && (
+            <button onClick={() => remove(item)} style={{ padding: "8px 10px", background: "transparent", border: "1px solid #222", borderRadius: 5, color: "#e55555", fontFamily: "DM Sans, sans-serif", fontSize: 11, cursor: "pointer" }}>
+              ✕
+            </button>
+          )}
+        </div>
+      )}
+
+      <input
+        ref={ref} type="file" accept="image/*" hidden
+        onChange={e => { const f = e.target.files?.[0]; if (f) upload(f, slot, current, setS, setProg); if (ref.current) ref.current.value = ""; }}
+      />
+    </div>
+  );
+
+  return (
+    <div style={{ border: "1px solid #1e1e1e", borderRadius: 10, padding: 16, background: "#0a0a0a" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 13, fontWeight: 600, color: "#888" }}>
+          Par {pairIndex + 1}
+        </p>
+        {(before || after) && (
+          <button
+            onClick={async () => {
+              if (!confirm(`Remover par ${pairIndex + 1} completamente?`)) return;
+              if (before) await fetch(`/api/admin/media?id=${before.id}`, { method: "DELETE" });
+              if (after)  await fetch(`/api/admin/media?id=${after.id}`,  { method: "DELETE" });
+              onRefresh();
+            }}
+            style={{ background: "none", border: "none", color: "#e55555", fontFamily: "DM Sans, sans-serif", fontSize: 11, cursor: "pointer" }}
+          >
+            Remover par
+          </button>
+        )}
+      </div>
+      <div style={{ display: "flex", gap: 10 }}>
+        <SlotBox
+          label="Foto ANTES" hint="Estado original do cliente"
+          color="#888888"
+          item={before} state={beforeState} progress={beforeProg}
+          inputRef={beforeRef} setState={setBeforeState} setProg={setBeforeProg}
+          slot="before" current={before}
+        />
+        <SlotBox
+          label="Foto DEPOIS" hint="Resultado final do trabalho"
+          color="#C9A84C"
+          item={after} state={afterState} progress={afterProg}
+          inputRef={afterRef} setState={setAfterState} setProg={setAfterProg}
+          slot="after" current={after}
+        />
+      </div>
+    </div>
+  );
+}
+
+function GaleriaTrabalhoAdmin({ items, onRefresh }: { items: MediaItem[]; onRefresh: () => void }) {
+  // Agrupa em pares pelo campo order: order 0,1 = par 0; order 2,3 = par 1; etc.
+  const sorted = [...items].sort((a, b) => a.order - b.order);
+  const maxOrder = sorted.length > 0 ? sorted[sorted.length - 1].order : -1;
+  const pairCount = Math.max(Math.ceil(sorted.length / 2), 1);
+
+  const pairs: { before?: MediaItem; after?: MediaItem }[] = Array.from({ length: pairCount }, (_, i) => ({
+    before: sorted.find(m => m.order === i * 2),
+    after:  sorted.find(m => m.order === i * 2 + 1),
+  }));
+
+  const addPair = () => {
+    // Só exibe visualmente um novo par vazio; o upload definirá o order correto
+    onRefresh(); // refresh para recalcular
+  };
+
+  const nextPairIndex = Math.ceil((maxOrder + 2) / 2);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ background: "#0d0d0d", border: "1px solid #1a1a1a", borderRadius: 8, padding: "10px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <span style={{ fontSize: 16 }}>💡</span>
+        <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#666", lineHeight: 1.5 }}>
+          Cada par tem uma foto <strong style={{ color: "#888" }}>Antes</strong> e uma foto <strong style={{ color: "#C9A84C" }}>Depois</strong>. O site mostra um controle deslizante para comparar as duas.
+        </p>
+      </div>
+
+      {pairs.map((pair, i) => (
+        <ParAnteDepois
+          key={i}
+          pairIndex={i}
+          before={pair.before}
+          after={pair.after}
+          onRefresh={onRefresh}
+        />
+      ))}
+
+      <button
+        onClick={() => {
+          // Cria visualmente um par novo — o usuário clicará em Enviar dentro do par
+          const newPairs = [...pairs, { before: undefined, after: undefined }];
+          // Forçamos re-render aumentando pairCount via artifício: fazemos refresh que não muda nada
+          // mas o nextPairIndex já estará correto no próximo ParAnteDepois
+          onRefresh();
+        }}
+        style={{ padding: "14px 0", background: "transparent", border: "1px dashed #2a2a2a", borderRadius: 8, color: "#666", fontFamily: "DM Sans, sans-serif", fontSize: 13, cursor: "pointer", width: "100%" }}
+      >
+        + Adicionar novo par (antes/depois)
+      </button>
+    </div>
+  );
+}
+
 
 function MidiasTab() {
   const [media, setMedia] = useState<MediaItem[]>([]);
@@ -407,8 +602,10 @@ function MidiasTab() {
                   );
                 })}
               </div>
+            ) : def.id === "galeria-trabalho" ? (
+              <GaleriaTrabalhoAdmin items={sectionItems} onRefresh={refresh} />
             ) : (
-              <GaleriaSlots section={def.id} accept={def.accept} items={sectionItems} onRefresh={refresh} />
+              <GaleriaEspacoAdmin items={sectionItems} onRefresh={refresh} />
             )}
           </div>
         );

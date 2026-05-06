@@ -1,5 +1,7 @@
 "use client";
 
+import { useMedia } from "@/hooks/useMedia";
+
 import { revealVariants } from "@/lib/motion";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -339,7 +341,9 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
-export default function Galeria({ espaco, trabalho }: { espaco: MediaItem[]; trabalho: MediaItem[] }) {
+export default function Galeria() {
+  const { items: espaco   } = useMedia("galeria-espaco");
+  const { items: trabalho } = useMedia("galeria-trabalho");
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

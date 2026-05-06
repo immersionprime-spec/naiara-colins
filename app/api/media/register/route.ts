@@ -1,10 +1,9 @@
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-// Registra no banco um arquivo já enviado diretamente ao Supabase Storage
 export async function POST(request: Request) {
   try {
-    const { path, section, bucket, isPrimary, type } = await request.json();
+    const { path, section, bucket, isPrimary, type, order } = await request.json();
 
     if (!path || !section || !bucket) {
       return NextResponse.json({ error: "Parâmetros em falta." }, { status: 400 });
@@ -26,21 +25,15 @@ export async function POST(request: Request) {
       url: path,
       type: mediaType,
       is_primary: isPrimary === true,
-      order: 0,
+      order: typeof order === "number" ? order : 0,
     });
 
     if (error) {
-      return NextResponse.json(
-        { error: "Conexão instável. Tente novamente." },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Conexão instável. Tente novamente." }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, path });
   } catch {
-    return NextResponse.json(
-      { error: "Conexão instável. Tente novamente." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Conexão instável. Tente novamente." }, { status: 500 });
   }
 }
