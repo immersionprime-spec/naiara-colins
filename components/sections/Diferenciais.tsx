@@ -33,6 +33,7 @@ export default function Diferenciais() {
 
   return (
     <section
+      data-theme="light"
       className="texture-light"
       style={{
         background: "var(--color-bg-alt)",
