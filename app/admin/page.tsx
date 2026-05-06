@@ -105,92 +105,309 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 // ── Mídias tab ─────────────────────────────────────────────────────────────
-function MidiasTab() {
-  const [media, setMedia] = useState<MediaItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [uploadSection, setUploadSection] = useState("hero");
-  const [uploadPrimary, setUploadPrimary] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/admin/media")
-      .then(r => r.json()).then(setMedia).catch(() => toast("Conexão instável. Tente novamente.", "error"))
-      .finally(() => setLoading(false));
-  }, []);
+type UploadState = "idle" | "uploading" | "done" | "error";
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+const SECTION_DEFS = [
+  {
+    id: "hero",
+    icon: "🎬",
+    label: "Vídeos da Tela Inicial",
+    desc: "Aparecem logo quando o site abre. No celular só o principal aparece.",
+    slots: [
+      { key: "hero-primary",   label: "Vídeo Principal",  hint: "Aparece no celular e à esquerda no computador", isPrimary: true  },
+      { key: "hero-secondary", label: "Vídeo Secundário", hint: "Aparece apenas à direita no computador",        isPrimary: false },
+    ],
+    accept: "video/mp4",
+  },
+  {
+    id: "sobre",
+    icon: "👩",
+    label: "Vídeo — Quem é a Naiara",
+    desc: "Aparece ao lado do texto de apresentação da Naiara.",
+    slots: [
+      { key: "sobre", label: "Vídeo da Naiara", hint: "Recomendado: formato vertical (9:16)", isPrimary: false },
+    ],
+    accept: "video/mp4",
+  },
+  {
+    id: "galeria-espaco",
+    icon: "🏠",
+    label: "Galeria — Fotos do Espaço",
+    desc: "Fotos do interior do salão. Você pode adicionar várias.",
+    accept: "image/*",
+    multiple: true,
+  },
+  {
+    id: "galeria-trabalho",
+    icon: "✨",
+    label: "Galeria — Portfólio de Trabalhos",
+    desc: "Fotos dos trabalhos realizados (antes e depois). Você pode adicionar várias.",
+    accept: "image/*",
+    multiple: true,
+  },
+  {
+    id: "cursos",
+    icon: "🎓",
+    label: "Cursos — Imagem de Destaque",
+    desc: "Foto ou vídeo que aparece na seção de cursos da página inicial.",
+    slots: [
+      { key: "cursos", label: "Foto ou Vídeo dos Cursos", hint: "Imagem de fundo da seção", isPrimary: false },
+    ],
+    accept: "image/*,video/mp4",
+  },
+] as const;
+
+async function doUpload(
+  file: File,
+  section: string,
+  isPrimary: boolean,
+  onProgress: (p: number) => void
+): Promise<boolean> {
+  const isVideo = file.type.startsWith("video/");
+
+  if (isVideo) {
+    try {
+      onProgress(5);
+      const urlRes = await fetch("/api/media/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, bucket: "media", fileName: file.name }),
+      });
+      if (!urlRes.ok) return false;
+      const { signedUrl, path } = await urlRes.json();
+      onProgress(10);
+
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) onProgress(10 + Math.round((e.loaded / e.total) * 80));
+        };
+        xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject());
+        xhr.onerror = () => reject();
+        xhr.open("PUT", signedUrl);
+        xhr.setRequestHeader("Content-Type", file.type);
+        xhr.send(file);
+      });
+      onProgress(92);
+
+      const reg = await fetch("/api/media/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path, section, bucket: "media", isPrimary, type: "video" }),
+      });
+      if (!reg.ok) return false;
+      onProgress(100);
+      return true;
+    } catch { return false; }
+  }
+
+  return new Promise<boolean>((resolve) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("section", section);
+    fd.append("bucket", "media");
+    fd.append("isPrimary", String(isPrimary));
+    const xhr = new XMLHttpRequest();
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 95));
+    };
+    xhr.onload  = () => { onProgress(100); resolve(xhr.status >= 200 && xhr.status < 300); };
+    xhr.onerror = () => resolve(false);
+    xhr.open("POST", "/api/media/upload");
+    xhr.send(fd);
+  });
+}
+
+function SingleSlot({ label, hint, accept, item, section, isPrimary, onRefresh }: {
+  label: string; hint: string; accept: string;
+  item: MediaItem | undefined; section: string; isPrimary: boolean;
+  onRefresh: () => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [state, setState] = useState<UploadState>("idle");
+  const [progress, setProgress] = useState(0);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    await uploadFile(file, uploadSection, uploadPrimary);
-    const res = await fetch("/api/admin/media");
-    setMedia(await res.json());
+    setState("uploading"); setProgress(0);
+    if (item) await fetch(`/api/admin/media?id=${item.id}`, { method: "DELETE" });
+    const ok = await doUpload(file, section, isPrimary, setProgress);
+    setState(ok ? "done" : "error");
+    if (ok) { setTimeout(() => setState("idle"), 2500); onRefresh(); }
+    if (inputRef.current) inputRef.current.value = "";
   };
 
-  const deleteItem = async (id: string) => {
-    await fetch(`/api/admin/media?id=${id}`, { method: "DELETE" });
-    setMedia(m => m.filter(x => x.id !== id));
-    toast("Removido com sucesso!", "success");
+  const handleRemove = async () => {
+    if (!item || !confirm("Remover este arquivo?")) return;
+    await fetch(`/api/admin/media?id=${item.id}`, { method: "DELETE" });
+    onRefresh();
   };
-
-  const sections = ["hero", "sobre", "galeria-espaco", "galeria-trabalho", "cursos"];
 
   return (
-    <div>
-      <h2 style={headingStyle}>Mídias</h2>
-
-      {/* Upload form */}
-      <div style={{ background: "#111", padding: 24, borderRadius: 8, marginBottom: 32, border: "1px solid #222" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 16 }}>
-          <label style={labelStyle}>
-            Seção
-            <select value={uploadSection} onChange={e => setUploadSection(e.target.value)} style={inputStyle}>
-              {sections.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </label>
-          {uploadSection === "hero" && (
-            <label style={{ ...labelStyle, flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <input type="checkbox" checked={uploadPrimary} onChange={e => setUploadPrimary(e.target.checked)} />
-              Vídeo principal (mobile)
-            </label>
-          )}
-        </div>
-        <button onClick={() => fileRef.current?.click()} style={btnPrimary}>
-          Selecionar arquivo
-        </button>
-        <input ref={fileRef} type="file" accept="image/*,video/mp4" hidden onChange={handleUpload} />
+    <div style={{ border: `1px solid ${item ? "#222" : "#161616"}`, borderRadius: 10, padding: 20, background: "#0d0d0d", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div>
+        <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 14, fontWeight: 600, color: "#fff", marginBottom: 4 }}>{label}</p>
+        <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#555" }}>{hint}</p>
       </div>
 
-      {/* Media grid */}
-      {loading ? <p style={{ color: "#666" }}>Carregando...</p> : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
-          {media.map(item => (
-            <div key={item.id} style={{
-              background: "#111", border: `1px solid ${item.is_primary ? "#C9A84C" : "#222"}`,
-              borderRadius: 8, overflow: "hidden", position: "relative",
-            }}>
-              {item.is_primary && (
-                <div style={{ background: "#C9A84C", color: "#1a1a1a", fontSize: 10, fontWeight: 700, padding: "2px 8px", fontFamily: "sans-serif" }}>
-                  MOBILE
-                </div>
-              )}
-              <div style={{ background: "#1a1a1a", height: 120, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ color: "#666", fontSize: 12, fontFamily: "sans-serif" }}>
-                  {item.type === "video" ? "🎬" : "🖼️"} {item.section}
-                </span>
+      <div style={{ height: 100, borderRadius: 8, border: `1px dashed ${item ? "#C9A84C44" : "#1e1e1e"}`, background: item ? "#131313" : "#080808", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 8 }}>
+        {item ? (
+          <>
+            <span style={{ fontSize: 28 }}>{item.type === "video" ? "🎬" : "🖼️"}</span>
+            <span style={{ fontFamily: "DM Sans, sans-serif", fontSize: 11, color: "#C9A84C" }}>{item.type === "video" ? "Vídeo carregado ✓" : "Imagem carregada ✓"}</span>
+          </>
+        ) : (
+          <>
+            <span style={{ fontSize: 24, opacity: 0.25 }}>📂</span>
+            <span style={{ fontFamily: "DM Sans, sans-serif", fontSize: 11, color: "#444" }}>Nenhum arquivo ainda</span>
+          </>
+        )}
+      </div>
+
+      {state === "uploading" && (
+        <div>
+          <div style={{ background: "#111", borderRadius: 4, height: 6, overflow: "hidden", marginBottom: 6 }}>
+            <div style={{ height: "100%", background: "#C9A84C", borderRadius: 4, width: `${progress}%`, transition: "width 0.3s ease" }} />
+          </div>
+          <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#C9A84C", textAlign: "center" }}>Enviando… {progress}%</p>
+        </div>
+      )}
+      {state === "done"  && <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#4caf7d", textAlign: "center" }}>✓ Salvo com sucesso!</p>}
+      {state === "error" && <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#e55555", textAlign: "center" }}>Erro no envio. Tente novamente.</p>}
+
+      {state === "idle" && (
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => inputRef.current?.click()} style={{ flex: 1, padding: "10px 0", background: "#C9A84C", color: "#0a0a0a", border: "none", borderRadius: 6, fontFamily: "DM Sans, sans-serif", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+            {item ? "Trocar arquivo" : "Enviar arquivo"}
+          </button>
+          {item && (
+            <button onClick={handleRemove} style={{ padding: "10px 14px", background: "transparent", border: "1px solid #2a2a2a", borderRadius: 6, color: "#e55555", fontFamily: "DM Sans, sans-serif", fontSize: 13, cursor: "pointer" }}>
+              Remover
+            </button>
+          )}
+        </div>
+      )}
+      <input ref={inputRef} type="file" accept={accept} hidden onChange={handleFile} />
+    </div>
+  );
+}
+
+function GaleriaSlots({ section, accept, items, onRefresh }: {
+  section: string; accept: string; items: MediaItem[]; onRefresh: () => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [state, setState] = useState<UploadState>("idle");
+  const [progress, setProgress] = useState(0);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setState("uploading"); setProgress(0);
+    const ok = await doUpload(file, section, false, setProgress);
+    setState(ok ? "done" : "error");
+    if (ok) { setTimeout(() => setState("idle"), 2000); onRefresh(); }
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const handleRemove = async (id: string) => {
+    if (!confirm("Remover esta foto?")) return;
+    await fetch(`/api/admin/media?id=${id}`, { method: "DELETE" });
+    onRefresh();
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {items.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: 10 }}>
+          {items.map(item => (
+            <div key={item.id} style={{ background: "#131313", border: "1px solid #1e1e1e", borderRadius: 8, overflow: "hidden" }}>
+              <div style={{ height: 90, display: "flex", alignItems: "center", justifyContent: "center", background: "#0d0d0d" }}>
+                <span style={{ fontSize: 24 }}>{item.type === "video" ? "🎬" : "🖼️"}</span>
               </div>
-              <div style={{ padding: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ color: "#666", fontSize: 11, fontFamily: "sans-serif" }}>#{item.order}</span>
-                <button
-                  onClick={() => deleteItem(item.id)}
-                  style={{ background: "none", border: "none", color: "#e55555", cursor: "pointer", fontSize: 12 }}
-                >
-                  Remover
-                </button>
-              </div>
+              <button onClick={() => handleRemove(item.id)} style={{ width: "100%", padding: "6px 0", background: "transparent", border: "none", borderTop: "1px solid #1e1e1e", color: "#e55555", fontFamily: "DM Sans, sans-serif", fontSize: 11, cursor: "pointer" }}>
+                Remover
+              </button>
             </div>
           ))}
         </div>
       )}
+
+      {state === "uploading" && (
+        <div>
+          <div style={{ background: "#111", borderRadius: 4, height: 6, overflow: "hidden", marginBottom: 6 }}>
+            <div style={{ height: "100%", background: "#C9A84C", width: `${progress}%`, transition: "width 0.3s" }} />
+          </div>
+          <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#C9A84C" }}>Enviando… {progress}%</p>
+        </div>
+      )}
+      {state === "done"  && <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#4caf7d" }}>✓ Foto adicionada!</p>}
+      {state === "error" && <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 12, color: "#e55555" }}>Erro no envio. Tente novamente.</p>}
+
+      {state === "idle" && (
+        <button onClick={() => inputRef.current?.click()} style={{ padding: "14px 0", background: "transparent", border: "1px dashed #2a2a2a", borderRadius: 8, color: "#666", fontFamily: "DM Sans, sans-serif", fontSize: 13, cursor: "pointer", width: "100%" }}>
+          + Adicionar foto
+        </button>
+      )}
+      <input ref={inputRef} type="file" accept={accept} hidden onChange={handleFile} />
+    </div>
+  );
+}
+
+function MidiasTab() {
+  const [media, setMedia] = useState<MediaItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = () => {
+    fetch("/api/admin/media")
+      .then(r => r.json()).then(setMedia)
+      .catch(() => toast("Conexão instável. Tente novamente.", "error"));
+  };
+
+  useEffect(() => {
+    fetch("/api/admin/media")
+      .then(r => r.json()).then(setMedia)
+      .catch(() => toast("Conexão instável. Tente novamente.", "error"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <p style={{ fontFamily: "DM Sans, sans-serif", color: "#555", padding: 16 }}>Carregando…</p>;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <h2 style={headingStyle}>Mídias</h2>
+
+      {SECTION_DEFS.map(def => {
+        const sectionItems = media.filter(m => m.section === def.id);
+
+        return (
+          <div key={def.id} style={{ background: "#111", border: "1px solid #1a1a1a", borderRadius: 14, padding: 28 }}>
+            <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #1a1a1a" }}>
+              <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, color: "#C9A84C", marginBottom: 4 }}>
+                {def.icon}&nbsp;&nbsp;{def.label}
+              </p>
+              <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 13, color: "#555" }}>{def.desc}</p>
+            </div>
+
+            {"slots" in def ? (
+              <div style={{ display: "grid", gridTemplateColumns: def.slots.length > 1 ? "repeat(auto-fit, minmax(240px, 1fr))" : "1fr", gap: 16 }}>
+                {(def.slots as { key: string; label: string; hint: string; isPrimary: boolean }[]).map(slot => {
+                  const primary   = sectionItems.find(m => m.is_primary) ?? sectionItems[0];
+                  const secondary = sectionItems.find(m => !m.is_primary && m.id !== primary?.id);
+                  const matched   = slot.isPrimary ? primary : secondary;
+                  return (
+                    <SingleSlot key={slot.key} label={slot.label} hint={slot.hint} accept={def.accept}
+                      item={matched} section={def.id} isPrimary={slot.isPrimary} onRefresh={refresh} />
+                  );
+                })}
+              </div>
+            ) : (
+              <GaleriaSlots section={def.id} accept={def.accept} items={sectionItems} onRefresh={refresh} />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
