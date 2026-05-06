@@ -6,7 +6,7 @@ import { revealVariants } from "@/lib/motion";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type MediaItem = { id: string; signedUrl?: string; url: string; order: number };
 
@@ -165,23 +165,6 @@ function SliderCard({ before, after, isMobile: mobile }: {
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!dragging.current || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    setPosition(Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100)));
-  }, []);
-
-  const stopDrag = useCallback(() => { dragging.current = false; }, []);
-
-  useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", stopDrag);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", stopDrag);
-    };
-  }, [handleMouseMove, stopDrag]);
-
   const CARD_STYLE: import("react").CSSProperties = {
     position: "relative",
     height: "min(52vh, 500px)",
@@ -194,7 +177,7 @@ function SliderCard({ before, after, isMobile: mobile }: {
   if (mobile) {
     return (
       <div
-        onClick={() => setShowAfter(!showAfter)}
+        onClick={() => setShowAfter(s => !s)}
         style={{ ...CARD_STYLE, cursor: "pointer", flexShrink: 0, minWidth: "85%", scrollSnapAlign: "start" }}
       >
         {(showAfter ? after : before).signedUrl
@@ -202,7 +185,7 @@ function SliderCard({ before, after, isMobile: mobile }: {
               src={(showAfter ? after : before).signedUrl}
               alt={showAfter ? "Depois" : "Antes"}
               draggable={false}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", userSelect: "none", pointerEvents: "none" }}
             />
           : <CrownFallback />
         }
@@ -210,6 +193,7 @@ function SliderCard({ before, after, isMobile: mobile }: {
           position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
           background: "rgba(0,0,0,0.75)", color: "#C9A84C",
           padding: "6px 14px", fontSize: 12, fontFamily: "var(--font-sans)", borderRadius: 2, whiteSpace: "nowrap",
+          pointerEvents: "none",
         }}>
           {showAfter ? "← Ver antes" : "Ver depois →"}
         </div>
@@ -217,15 +201,31 @@ function SliderCard({ before, after, isMobile: mobile }: {
     );
   }
 
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragging.current = true;
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging.current || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setPosition(Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100)));
+  };
+
+  const stopDrag = () => { dragging.current = false; };
+
   return (
     <div
       ref={containerRef}
-      onMouseDown={() => { dragging.current = true; }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={stopDrag}
+      onPointerCancel={stopDrag}
       onDragStart={(e) => e.preventDefault()}
-      style={{ ...CARD_STYLE, cursor: "col-resize", userSelect: "none" }}
+      style={{ ...CARD_STYLE, cursor: "col-resize", userSelect: "none", touchAction: "none" }}
     >
-      {/* Before */}
-      <div style={{ position: "absolute", inset: 0 }}>
+      {/* Before — fully visible underneath, sem pointer events */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
         {before.signedUrl
           ? <img
               src={before.signedUrl}
@@ -236,8 +236,8 @@ function SliderCard({ before, after, isMobile: mobile }: {
           : <CrownFallback />
         }
       </div>
-      {/* After clipped — inset from left = position% */}
-      <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 0 0 ${position}%)` }}>
+      {/* After — clipped da esquerda em position%, sem pointer events */}
+      <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 0 0 ${position}%)`, pointerEvents: "none" }}>
         <div style={{ position: "absolute", inset: 0 }}>
           {after.signedUrl
             ? <img
@@ -262,6 +262,7 @@ function SliderCard({ before, after, isMobile: mobile }: {
           background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center",
           color: "#1a1a1a", fontSize: 14, fontWeight: 700,
           boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+          pointerEvents: "none",
         }}>↔</div>
       </div>
     </div>
