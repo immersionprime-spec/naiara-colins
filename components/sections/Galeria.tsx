@@ -283,18 +283,7 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
             <button
               aria-label="Par anterior"
               onClick={() => scrollByCard(-1)}
-              style={{
-                position: "absolute", left: 0, top: "50%",
-                transform: "translateY(-50%)", zIndex: 10,
-                width: 44, height: 64, borderRadius: "0 6px 6px 0",
-                background: "rgba(201,168,76,0.92)",
-                border: "none",
-                color: "#0a0a0a", fontSize: 22, fontWeight: 700,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer",
-                boxShadow: "2px 0 12px rgba(0,0,0,0.4)",
-                flexShrink: 0,
-              }}
+              style={{ position:"absolute", left:0, top:"50%", transform:"translateY(-50%)", zIndex:10, width:44, height:64, borderRadius:"0 6px 6px 0", background:"rgba(201,168,76,0.92)", border:"none", color:"#0a0a0a", fontSize:22, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", boxShadow:"2px 0 12px rgba(0,0,0,0.4)", flexShrink:0 }}
             >‹</button>
 
             {/* Carrossel — igual ao atual, sem nenhuma alteração */}
@@ -336,18 +325,7 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
             <button
               aria-label="Próximo par"
               onClick={() => scrollByCard(1)}
-              style={{
-                position: "absolute", right: 0, top: "50%",
-                transform: "translateY(-50%)", zIndex: 10,
-                width: 44, height: 64, borderRadius: "6px 0 0 6px",
-                background: "rgba(201,168,76,0.92)",
-                border: "none",
-                color: "#0a0a0a", fontSize: 22, fontWeight: 700,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer",
-                boxShadow: "-2px 0 12px rgba(0,0,0,0.4)",
-                flexShrink: 0,
-              }}
+              style={{ position:"absolute", right:0, top:"50%", transform:"translateY(-50%)", zIndex:10, width:44, height:64, borderRadius:"6px 0 0 6px", background:"rgba(201,168,76,0.92)", border:"none", color:"#0a0a0a", fontSize:22, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", boxShadow:"-2px 0 12px rgba(0,0,0,0.4)", flexShrink:0 }}
             >›</button>
           </div>
 
