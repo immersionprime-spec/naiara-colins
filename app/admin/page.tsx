@@ -169,67 +169,59 @@ async function doUpload(
   isPrimary: boolean,
   onProgress: (p: number) => void,
   order = 0
-): Promise<MediaItem | null> {
+): Promise<boolean> {
   const isVideo = file.type.startsWith("video/");
+  const isImage = file.type.startsWith("image/");
+  if (!isVideo && !isImage) return false;
 
-  if (isVideo) {
-    try {
-      onProgress(5);
-      const urlRes = await fetch("/api/media/upload-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section, bucket: "media", fileName: file.name }),
-      });
-      if (!urlRes.ok) return null;
-      const { signedUrl, path } = await urlRes.json();
-      onProgress(10);
+  try {
+    onProgress(5);
 
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) onProgress(10 + Math.round((e.loaded / e.total) * 80));
-        };
-        xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject());
-        xhr.onerror = () => reject();
-        xhr.open("PUT", signedUrl);
-        xhr.setRequestHeader("Content-Type", file.type);
-        xhr.send(file);
-      });
-      onProgress(92);
+    // 1. Gera signed upload URL (payload pequeno, sem o arquivo)
+    const urlRes = await fetch("/api/media/upload-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ section, bucket: "media", fileName: file.name }),
+    });
+    if (!urlRes.ok) return false;
+    const { signedUrl, path } = await urlRes.json();
+    if (!signedUrl || !path) return false;
+    onProgress(10);
 
-      const reg = await fetch("/api/media/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path, section, bucket: "media", isPrimary, type: "video", order }),
-      });
-      if (!reg.ok) return null;
-      const regData = await reg.json();
-      onProgress(100);
-      return regData.item ?? null;
-    } catch { return null; }
+    // 2. PUT direto para Supabase Storage — sem passar pelo Vercel
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) onProgress(10 + Math.round((e.loaded / e.total) * 80));
+      };
+      xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(String(xhr.status))));
+      xhr.onerror = () => reject(new Error("network"));
+      xhr.open("PUT", signedUrl);
+      xhr.setRequestHeader("Content-Type", file.type);
+      xhr.send(file);
+    });
+    onProgress(92);
+
+    // 3. Registra no banco com order correto
+    const reg = await fetch("/api/media/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path,
+        section,
+        bucket: "media",
+        isPrimary,
+        type: isVideo ? "video" : "image",
+        order,
+      }),
+    });
+    if (!reg.ok) return false;
+
+    onProgress(100);
+    return true;
+  } catch {
+    return false;
   }
-
-  return new Promise<MediaItem | null>((resolve) => {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("section", section);
-    fd.append("bucket", "media");
-    fd.append("isPrimary", String(isPrimary));
-    const xhr = new XMLHttpRequest();
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 95));
-    };
-    xhr.onload = () => {
-      onProgress(100);
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try { const d = JSON.parse(xhr.responseText); resolve(d.item ?? null); } catch { resolve(null); }
-      } else { resolve(null); }
-    };
-    xhr.onerror = () => resolve(null);
-    fd.append("order", String(order));
-    xhr.open("POST", "/api/media/upload");
-    xhr.send(fd);
-  });
 }
 
 function SingleSlot({ label, hint, accept, item, section, isPrimary, onRefresh }: {
@@ -391,7 +383,7 @@ function ParAnteDepois({ pairIndex, before, after, onAddItem, onRemoveItem }: {
     // Remove o atual do estado local imediatamente (sem round-trip)
     if (current) onRemoveItem(current.id);
     const order = pairIndex * 2 + (slot === "before" ? 0 : 1);
-    const item = await doUpload(file, "galeria-trabalho", false, setProg, order);
+    const ok = await doUpload(file, "galeria-trabalho", false, setProg, order);
     if (item) {
       onAddItem({ ...item, order });
       setState("done");
