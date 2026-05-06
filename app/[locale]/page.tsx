@@ -78,9 +78,9 @@ async function fetchTestimonials() {
 export default async function HomePage({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-  const { locale } = await params;
+  const { locale } = params;
   setRequestLocale(locale);
 
   const [

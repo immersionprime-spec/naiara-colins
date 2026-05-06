@@ -8,16 +8,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { activeSectionStore } from "@/lib/activeSectionStore";
 import { useMagnetic } from "@/hooks/useMagnetic";
-
-const CrownSVG = ({ size = 32 }: { size?: number }) => (
-  <svg width={size} height={size * 0.7} viewBox="0 0 120 84" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M10 70 L10 54 L30 30 L60 54 L90 18 L110 54 L110 70 Z" fill="#C9A84C" stroke="#C9A84C" strokeWidth="2" strokeLinejoin="round"/>
-    <rect x="8" y="68" width="104" height="10" rx="2" fill="#C9A84C"/>
-    <circle cx="10" cy="30" r="6" fill="#C9A84C"/>
-    <circle cx="60" cy="14" r="6" fill="#C9A84C"/>
-    <circle cx="110" cy="30" r="6" fill="#C9A84C"/>
-  </svg>
-);
+import Image from "next/image";
 
 const navItems = [
   { href: "#sobre", key: "sobre" },
@@ -35,6 +26,7 @@ const locales = [
 
 export default function Header({ locale }: { locale: string }) {
   const t = useTranslations("nav");
+  const tc = useTranslations("common");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -177,9 +169,16 @@ export default function Header({ locale }: { locale: string }) {
             layoutId="crown-logo"
             animate={{ scale: scrolled ? 0.85 : 1 }}
             transition={{ duration: 0.3 }}
-            style={{ display: "flex" }}
+            style={{ display: "flex", width: 40, height: 40, alignItems: "center" }}
           >
-            <CrownSVG size={36} />
+            <Image
+              src="/logo.png"
+              alt={tc("logoAlt")}
+              width={40}
+              height={40}
+              priority
+              style={{ objectFit: "contain" }}
+            />
           </motion.div>
         </Link>
 

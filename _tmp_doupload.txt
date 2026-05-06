@@ -1,0 +1,60 @@
+async function doUpload(
+  file: File,
+  section: string,
+  isPrimary: boolean,
+  onProgress: (p: number) => void,
+  order = 0
+): Promise<boolean> {
+  const isVideo = file.type.startsWith("video/");
+  const isImage = file.type.startsWith("image/");
+  if (!isVideo && !isImage) return false;
+
+  try {
+    onProgress(5);
+
+    // 1. Gera signed upload URL no servidor (payload pequeno, sem o arquivo)
+    const urlRes = await fetch("/api/media/upload-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ section, bucket: "media", fileName: file.name }),
+    });
+    if (!urlRes.ok) return false;
+    const { signedUrl, path } = await urlRes.json();
+    if (!signedUrl || !path) return false;
+    onProgress(10);
+
+    // 2. PUT direto para o Supabase Storage — bypassa Vercel, funciona para imagem E vídeo
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) onProgress(10 + Math.round((e.loaded / e.total) * 80));
+      };
+      xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(String(xhr.status))));
+      xhr.onerror = () => reject(new Error("network"));
+      xhr.open("PUT", signedUrl);
+      xhr.setRequestHeader("Content-Type", file.type);
+      xhr.send(file);
+    });
+    onProgress(92);
+
+    // 3. Registra no banco com o order correto
+    const reg = await fetch("/api/media/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path,
+        section,
+        bucket: "media",
+        isPrimary,
+        type: isVideo ? "video" : "image",
+        order,
+      }),
+    });
+    if (!reg.ok) return false;
+
+    onProgress(100);
+    return true;
+  } catch {
+    return false;
+  }
+}

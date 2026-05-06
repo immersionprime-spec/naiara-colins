@@ -6,9 +6,9 @@ import { setRequestLocale } from "next-intl/server";
 export default async function PrivacidadePage({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-  const { locale } = await params;
+  const { locale } = params;
   setRequestLocale(locale);
 
   return (

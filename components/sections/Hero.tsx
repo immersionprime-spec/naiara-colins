@@ -131,7 +131,12 @@ export default function Hero() {
       <div style={{
         position: "absolute", inset: 0, zIndex: 10,
         display: "flex", flexDirection: "column", alignItems: "center",
-        justifyContent: "center", gap: 32, padding: "0 24px", textAlign: "center",
+        justifyContent: "center",
+        gap: 24,
+        padding: "0 24px",
+        paddingTop: "8vh",
+        paddingBottom: "8vh",
+        textAlign: "center",
       }}>
         <RevealText
           text={t("tagline")}
@@ -205,6 +210,10 @@ export default function Hero() {
               color: "rgba(255,255,255,0.45)",
               letterSpacing: "0.05em",
               textAlign: "center",
+              maxWidth: "90vw",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
           >
             {t("credencial_sub")}
@@ -218,7 +227,7 @@ export default function Hero() {
           transition={{ delay: 1.4, duration: 0.6, ease: [0.0, 0.0, 0.2, 1] }}
           style={{
             position: "absolute",
-            bottom: 32,
+            bottom: 24,
             left: "50%",
             transform: "translateX(-50%)",
             display: "flex",

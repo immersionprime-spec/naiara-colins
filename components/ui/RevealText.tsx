@@ -25,15 +25,6 @@ const wordVariants: Variants = {
   }),
 };
 
-const containerVariants: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
 export default function RevealText({
   text,
   delay = 0,
@@ -53,42 +44,36 @@ export default function RevealText({
   }
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      transition={{ delayChildren: delay }}
+    <Tag
+      className={className}
       style={{
+        ...(style || {}),
         display: "flex",
         flexWrap: "wrap",
-        gap: "0.25em",
+        gap: "0 0.28em",
         justifyContent: "center",
         alignItems: "flex-end",
+        lineHeight: style?.lineHeight ?? "var(--leading-tight)",
       }}
     >
       {words.map((word, i) => (
-        <div
-          key={`${word}-${i}`}
-          style={{
-            overflow: "hidden",
-            display: "inline-block",
-            lineHeight: 1.1,
-          }}
+        <span
+          key={i}
+          style={{ overflow: "hidden", display: "block", lineHeight: "inherit" }}
         >
           <motion.span
             custom={i}
             variants={wordVariants}
-            style={{
-              display: "inline-block",
-              ...(style || {}),
-            }}
-            className={className}
+            initial="hidden"
+            animate="visible"
+            transition={{ delay: delay + i * 0.08 }}
+            style={{ display: "block" }}
           >
             {word}
           </motion.span>
-        </div>
+        </span>
       ))}
-    </motion.div>
+    </Tag>
   );
 }
 

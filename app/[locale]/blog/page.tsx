@@ -27,9 +27,9 @@ async function fetchPosts(locale: string): Promise<PostListItem[]> {
 export default async function BlogListPage({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-  const { locale } = await params;
+  const { locale } = params;
   setRequestLocale(locale);
   const t = await getTranslations("blog");
   const posts = await fetchPosts(locale);

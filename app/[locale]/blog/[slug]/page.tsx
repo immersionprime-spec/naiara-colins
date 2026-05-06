@@ -45,9 +45,9 @@ async function fetchPost(slug: string, locale: string): Promise<PostDetail | nul
 export default async function BlogPostPage({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: { locale: string; slug: string };
 }) {
-  const { locale, slug } = await params;
+  const { locale, slug } = params;
   setRequestLocale(locale);
   const t = await getTranslations("blog");
   const post = await fetchPost(slug, locale);

@@ -1,11 +1,14 @@
 import { getWhatsAppLink } from "@/lib/whatsapp";
-import Link from "next/link";
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/navigation";
 
-export default async function GlobalNotFound() {
-  const t = await getTranslations({ locale: "pt", namespace: "pagina404" });
-  const tc = await getTranslations({ locale: "pt", namespace: "common" });
+export default async function NotFound() {
+  await getLocale();
+
+  const t = await getTranslations("pagina404");
+  const tc = await getTranslations("common");
+
   return (
     <main
       style={{
@@ -20,7 +23,6 @@ export default async function GlobalNotFound() {
         padding: "48px 24px",
       }}
     >
-      {/* Crown */}
       <Image
         src="/logo.png"
         alt={tc("logoAlt")}
@@ -29,17 +31,27 @@ export default async function GlobalNotFound() {
         style={{ objectFit: "contain" }}
       />
 
-      <p style={{
-        fontFamily: "'Cormorant Garamond', Georgia, serif",
-        fontSize: "clamp(1.25rem, 4vw, 2rem)",
-        color: "#C9A84C",
-        maxWidth: "480px",
-        lineHeight: 1.3,
-      }}>
+      <p
+        style={{
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontSize: "clamp(1.25rem, 4vw, 2rem)",
+          color: "#C9A84C",
+          maxWidth: "480px",
+          lineHeight: 1.3,
+        }}
+      >
         {t("titulo")}
       </p>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: 320 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          width: "100%",
+          maxWidth: 320,
+        }}
+      >
         <Link
           href="/"
           style={{
@@ -79,3 +91,4 @@ export default async function GlobalNotFound() {
     </main>
   );
 }
+

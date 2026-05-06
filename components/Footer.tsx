@@ -7,16 +7,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useBusinessHours } from "@/hooks/useBusinessHours";
-
-const CrownLogo = () => (
-  <svg width="48" height="34" viewBox="0 0 120 84" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10 70 L10 54 L30 30 L60 54 L90 18 L110 54 L110 70 Z" fill="#C9A84C" stroke="#C9A84C" strokeWidth="2" strokeLinejoin="round"/>
-    <rect x="8" y="68" width="104" height="10" rx="2" fill="#C9A84C"/>
-    <circle cx="10" cy="30" r="6" fill="#C9A84C"/>
-    <circle cx="60" cy="14" r="6" fill="#C9A84C"/>
-    <circle cx="110" cy="30" r="6" fill="#C9A84C"/>
-  </svg>
-);
+import Image from "next/image";
 
 const InstagramIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -35,6 +26,7 @@ const WAIcon = () => (
 
 export default function Footer() {
   const t = useTranslations("footer");
+  const tc = useTranslations("common");
   const [tooltip, setTooltip] = useState(false);
   const [phoneTooltip, setPhoneTooltip] = useState(false);
   const businessStatus = useBusinessHours();
@@ -74,7 +66,13 @@ export default function Footer() {
         gap: 24,
         textAlign: "center",
       }}>
-        <CrownLogo />
+        <Image
+          src="/logo.png"
+          alt={tc("logoAlt")}
+          width={72}
+          height={72}
+          style={{ objectFit: "contain" }}
+        />
         <p style={{
           fontFamily: "var(--font-serif)",
           fontSize: "var(--text-h3)",

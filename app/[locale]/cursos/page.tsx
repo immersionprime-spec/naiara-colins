@@ -8,9 +8,9 @@ import Link from "next/link";
 export default async function CursosPage({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-  const { locale } = await params;
+  const { locale } = params;
   setRequestLocale(locale);
   const t = await getTranslations("cursos");
 
