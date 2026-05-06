@@ -189,7 +189,7 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
 
     const CARD_STYLE: import("react").CSSProperties = {
       position: "relative",
-      aspectRatio: "3/4",
+      height: "min(52vh, 500px)",
       overflow: "hidden",
       borderRadius: 4,
       border: "1px solid var(--color-border)",

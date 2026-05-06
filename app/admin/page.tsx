@@ -505,7 +505,7 @@ function GaleriaTrabalhoAdmin({ items, onRefresh }: { items: MediaItem[]; onRefr
   // Agrupa em pares pelo campo order: order 0,1 = par 0; order 2,3 = par 1; etc.
   const sorted = [...items].sort((a, b) => a.order - b.order);
   const maxOrder = sorted.length > 0 ? sorted[sorted.length - 1].order : -1;
-  const pairCount = Math.max(Math.ceil(sorted.length / 2), 1);
+  const pairCount = maxOrder >= 0 ? Math.floor(maxOrder / 2) + 1 : 1;
 
   const pairs: { before?: MediaItem; after?: MediaItem }[] = Array.from({ length: pairCount }, (_, i) => ({
     before: sorted.find(m => m.order === i * 2),
