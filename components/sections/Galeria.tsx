@@ -258,6 +258,13 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
     { before: { ...PLACEHOLDER, id: "ph5" }, after: { ...PLACEHOLDER, id: "ph6" } },
   ];
 
+  const scrollByCard = (dir: 1 | -1) => {
+    if (!scrollRef.current) return;
+    const child = scrollRef.current.firstElementChild as HTMLElement | null;
+    if (!child) return;
+    scrollRef.current.scrollBy({ left: dir * (child.offsetWidth + 12), behavior: "smooth" });
+  };
+
   return (
     <div>
       <h3 style={{
@@ -271,39 +278,78 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
 
       {isMobile ? (
         <>
-          <div
-            ref={scrollRef}
-            onScroll={() => {
-              if (!scrollRef.current) return;
-              const child = scrollRef.current.firstElementChild as HTMLElement | null;
-              if (!child) return;
-              const cardWidth = child.offsetWidth + 12;
-              const idx = Math.round(scrollRef.current.scrollLeft / cardWidth);
-              setActiveDot(Math.min(idx, displayPairs.length - 1));
-            }}
-            style={{
-              display: "flex",
-              overflowX: "auto",
-              gap: 12,
-              scrollSnapType: "x mandatory",
-              scrollBehavior: "smooth",
-              WebkitOverflowScrolling: "touch",
-              msOverflowStyle: "none",
-              scrollbarWidth: "none",
-            }}
-          >
-            {displayPairs.map((pair, idx) => (
-              <div
-                key={pair.before?.id ?? pair.after?.id ?? `ph-${idx}`}
-                style={{ minWidth: "min(280px, 72vw)", flexShrink: 0, scrollSnapAlign: "start" }}
-              >
-                <SliderCard
-                  before={pair.before ?? { id: `ph-b-${idx}`, signedUrl: "", url: "", order: idx * 2 }}
-                  after={pair.after ?? { id: `ph-a-${idx}`, signedUrl: "", url: "", order: idx * 2 + 1 }}
-                />
-              </div>
-            ))}
+          <div style={{ position: "relative" }}>
+            {/* Botão anterior */}
+            <button
+              aria-label="Par anterior"
+              onClick={() => scrollByCard(-1)}
+              style={{
+                position: "absolute", left: 4, top: "50%",
+                transform: "translateY(-50%)", zIndex: 10,
+                width: 36, height: 36, borderRadius: "50%",
+                background: "rgba(10,10,10,0.75)",
+                border: "1px solid #C9A84C",
+                color: "#C9A84C", fontSize: 16,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", backdropFilter: "blur(4px)",
+                flexShrink: 0,
+              }}
+            >‹</button>
+
+            {/* Carrossel — igual ao atual, sem nenhuma alteração */}
+            <div
+              ref={scrollRef}
+              onScroll={() => {
+                if (!scrollRef.current) return;
+                const child = scrollRef.current.firstElementChild as HTMLElement | null;
+                if (!child) return;
+                const cardWidth = child.offsetWidth + 12;
+                const idx = Math.round(scrollRef.current.scrollLeft / cardWidth);
+                setActiveDot(Math.min(idx, displayPairs.length - 1));
+              }}
+              style={{
+                display: "flex",
+                overflowX: "auto",
+                gap: 12,
+                scrollSnapType: "x mandatory",
+                scrollBehavior: "smooth",
+                WebkitOverflowScrolling: "touch",
+                msOverflowStyle: "none",
+                scrollbarWidth: "none",
+              }}
+            >
+              {displayPairs.map((pair, idx) => (
+                <div
+                  key={pair.before?.id ?? pair.after?.id ?? `ph-${idx}`}
+                  style={{ minWidth: "min(280px, 72vw)", flexShrink: 0, scrollSnapAlign: "start" }}
+                >
+                  <SliderCard
+                    before={pair.before ?? { id: `ph-b-${idx}`, signedUrl: "", url: "", order: idx * 2 }}
+                    after={pair.after  ?? { id: `ph-a-${idx}`, signedUrl: "", url: "", order: idx * 2 + 1 }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Botão próximo */}
+            <button
+              aria-label="Próximo par"
+              onClick={() => scrollByCard(1)}
+              style={{
+                position: "absolute", right: 4, top: "50%",
+                transform: "translateY(-50%)", zIndex: 10,
+                width: 36, height: 36, borderRadius: "50%",
+                background: "rgba(10,10,10,0.75)",
+                border: "1px solid #C9A84C",
+                color: "#C9A84C", fontSize: 16,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", backdropFilter: "blur(4px)",
+                flexShrink: 0,
+              }}
+            >›</button>
           </div>
+
+          {/* Dots — igual ao atual */}
           <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
             {displayPairs.map((_, i) => (
               <span key={i} style={{
