@@ -108,6 +108,11 @@ const TABS: { id: Tab; label: string }[] = [
 
 type UploadState = "idle" | "uploading" | "done" | "error";
 
+type SlotDef = { key: string; label: string; hint: string; isPrimary: boolean };
+type SectionDef =
+  | { id: string; icon: string; label: string; desc: string; accept: string; slots: SlotDef[] }
+  | { id: string; icon: string; label: string; desc: string; accept: string; multiple: true };
+
 const SECTION_DEFS = [
   {
     id: "hero",
@@ -156,7 +161,7 @@ const SECTION_DEFS = [
     ],
     accept: "image/*,video/mp4",
   },
-] as const;
+] as SectionDef[];
 
 async function doUpload(
   file: File,
@@ -392,7 +397,7 @@ function MidiasTab() {
 
             {"slots" in def ? (
               <div style={{ display: "grid", gridTemplateColumns: def.slots.length > 1 ? "repeat(auto-fit, minmax(240px, 1fr))" : "1fr", gap: 16 }}>
-                {(def.slots as { key: string; label: string; hint: string; isPrimary: boolean }[]).map(slot => {
+                {(def.slots as SlotDef[]).map(slot => {
                   const primary   = sectionItems.find(m => m.is_primary) ?? sectionItems[0];
                   const secondary = sectionItems.find(m => !m.is_primary && m.id !== primary?.id);
                   const matched   = slot.isPrimary ? primary : secondary;
