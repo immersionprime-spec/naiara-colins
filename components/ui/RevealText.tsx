@@ -10,15 +10,19 @@ interface RevealTextProps {
   className?: string;
   style?: CSSProperties;
   as?: "h1" | "h2" | "h3" | "p" | "span";
-  triggerOnView?: boolean;
 }
 
 const wordVariants: Variants = {
   hidden: { y: "110%", opacity: 0 },
-  visible: {
+  visible: (i: number) => ({
     y: "0%",
     opacity: 1,
-  },
+    transition: {
+      duration: 0.7,
+      delay: i * 0.08,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  }),
 };
 
 export default function RevealText({
@@ -27,7 +31,6 @@ export default function RevealText({
   className,
   style,
   as: Tag = "h1",
-  triggerOnView = false,
 }: RevealTextProps) {
   const reducedMotion = useReducedMotion();
   const words = text.split(" ");
@@ -58,39 +61,18 @@ export default function RevealText({
           key={i}
           style={{ overflow: "hidden", display: "block", lineHeight: "inherit" }}
         >
-          {triggerOnView ? (
-            <motion.span
-              variants={wordVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "0px 0px -40px 0px" }}
-              transition={{
-                delay: delay + i * 0.08,
-                duration: 0.7,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              style={{ display: "block" }}
-            >
-              {word}
-            </motion.span>
-          ) : (
-            <motion.span
-              variants={wordVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{
-                delay: delay + i * 0.08,
-                duration: 0.7,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              style={{ display: "block" }}
-            >
-              {word}
-            </motion.span>
-          )}
+          <motion.span
+            custom={i}
+            variants={wordVariants}
+            initial="hidden"
+            animate="visible"
+            transition={{ delay: delay + i * 0.08 }}
+            style={{ display: "block" }}
+          >
+            {word}
+          </motion.span>
         </span>
       ))}
     </Tag>
   );
 }
-
