@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-type MediaItem = { id: string; signedUrl?: string; url: string };
+type MediaItem = { id: string; signedUrl?: string; url: string; order: number };
 
 const CrownFallback = () => (
   <div style={{ width: "100%", height: "100%", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -58,7 +58,7 @@ function GaleriaEspaco({ items, isMobile }: { items: MediaItem[]; isMobile: bool
   const [activeDot, setActiveDot] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const display = items.length > 0 ? items : Array.from({ length: 6 }, (_, i) => ({ id: `ph-${i}`, signedUrl: "", url: "" }));
+  const display = items.length > 0 ? items : Array.from({ length: 6 }, (_, i) => ({ id: `ph-${i}`, signedUrl: "", url: "", order: i }));
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
@@ -154,116 +154,146 @@ function GaleriaEspaco({ items, isMobile }: { items: MediaItem[]; isMobile: bool
   );
 }
 
+// ─── SliderCard — fora de GaleriaTrabalho ──────────────────────────────────
+function SliderCard({ before, after, isMobile: mobile }: {
+  before: MediaItem;
+  after: MediaItem;
+  isMobile: boolean;
+}) {
+  const [position, setPosition] = useState(50);
+  const [showAfter, setShowAfter] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!dragging.current || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setPosition(Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100)));
+  }, []);
+
+  const stopDrag = useCallback(() => { dragging.current = false; }, []);
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", stopDrag);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", stopDrag);
+    };
+  }, [handleMouseMove, stopDrag]);
+
+  const CARD_STYLE: import("react").CSSProperties = {
+    position: "relative",
+    height: "min(52vh, 500px)",
+    overflow: "hidden",
+    borderRadius: 4,
+    border: "1px solid var(--color-border)",
+    background: "#111",
+  };
+
+  if (mobile) {
+    return (
+      <div
+        onClick={() => setShowAfter(!showAfter)}
+        style={{ ...CARD_STYLE, cursor: "pointer", flexShrink: 0, minWidth: "85%", scrollSnapAlign: "start" }}
+      >
+        {(showAfter ? after : before).signedUrl
+          ? <img
+              src={(showAfter ? after : before).signedUrl}
+              alt={showAfter ? "Depois" : "Antes"}
+              draggable={false}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          : <CrownFallback />
+        }
+        <div style={{
+          position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
+          background: "rgba(0,0,0,0.75)", color: "#C9A84C",
+          padding: "6px 14px", fontSize: 12, fontFamily: "var(--font-sans)", borderRadius: 2, whiteSpace: "nowrap",
+        }}>
+          {showAfter ? "← Ver antes" : "Ver depois →"}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseDown={() => { dragging.current = true; }}
+      onDragStart={(e) => e.preventDefault()}
+      style={{ ...CARD_STYLE, cursor: "col-resize", userSelect: "none" }}
+    >
+      {/* Before */}
+      <div style={{ position: "absolute", inset: 0 }}>
+        {before.signedUrl
+          ? <img
+              src={before.signedUrl}
+              alt="Antes"
+              draggable={false}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          : <CrownFallback />
+        }
+      </div>
+      {/* After clipped — inset from left = position% */}
+      <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 0 0 ${position}%)` }}>
+        <div style={{ position: "absolute", inset: 0 }}>
+          {after.signedUrl
+            ? <img
+                src={after.signedUrl}
+                alt="Depois"
+                draggable={false}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            : <CrownFallback />
+          }
+        </div>
+      </div>
+      {/* Divider */}
+      <div style={{
+        position: "absolute", top: 0, bottom: 0, left: `${position}%`,
+        width: 2, background: "#C9A84C", transform: "translateX(-50%)", pointerEvents: "none",
+      }}>
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 36, height: 36, borderRadius: "50%",
+          background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center",
+          color: "#1a1a1a", fontSize: 14, fontWeight: 700,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+        }}>↔</div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Galeria Trabalho (before/after) ────────────────────────────────────────
 function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: boolean }) {
   const t = useTranslations("galeria");
   const [activeDot, setActiveDot] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  function SliderCard({ before, after, isMobile: mobile }: {
-    before: MediaItem;
-    after: MediaItem;
-    isMobile: boolean;
-  }) {
-    const [position, setPosition] = useState(50);
-    const [showAfter, setShowAfter] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const dragging = useRef(false);
-
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-      if (!dragging.current || !containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      setPosition(Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100)));
-    }, []);
-
-    const stopDrag = useCallback(() => { dragging.current = false; }, []);
-
-    useEffect(() => {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", stopDrag);
-      return () => {
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("mouseup", stopDrag);
-      };
-    }, [handleMouseMove, stopDrag]);
-
-    const CARD_STYLE: import("react").CSSProperties = {
-      position: "relative",
-      height: "min(52vh, 500px)",
-      overflow: "hidden",
-      borderRadius: 4,
-      border: "1px solid var(--color-border)",
-      background: "#111",
-    };
-
-    if (mobile) {
-      return (
-        <div
-          onClick={() => setShowAfter(!showAfter)}
-          style={{ ...CARD_STYLE, cursor: "pointer", flexShrink: 0, minWidth: "85%", scrollSnapAlign: "start" }}
-        >
-          {(showAfter ? after : before).signedUrl
-            ? <img src={(showAfter ? after : before).signedUrl} alt={showAfter ? "Depois" : "Antes"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            : <CrownFallback />
-          }
-          <div style={{
-            position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
-            background: "rgba(0,0,0,0.75)", color: "#C9A84C",
-            padding: "6px 14px", fontSize: 12, fontFamily: "var(--font-sans)", borderRadius: 2, whiteSpace: "nowrap",
-          }}>
-            {showAfter ? "← Ver antes" : "Ver depois →"}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div
-        ref={containerRef}
-        onMouseDown={() => { dragging.current = true; }}
-        style={{ ...CARD_STYLE, cursor: "col-resize", userSelect: "none" }}
-      >
-        {/* Before */}
-        <div style={{ position: "absolute", inset: 0 }}>
-          {before.signedUrl
-            ? <img src={before.signedUrl} alt="Antes" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            : <CrownFallback />
-          }
-        </div>
-        {/* After clipped */}
-        <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 0 0 ${position}%)` }}>
-          <div style={{ position: "absolute", inset: 0 }}>
-            {after.signedUrl
-              ? <img src={after.signedUrl} alt="Depois" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              : <CrownFallback />
-            }
-          </div>
-        </div>
-        {/* Divider */}
-        <div style={{
-          position: "absolute", top: 0, bottom: 0, left: `${position}%`,
-          width: 2, background: "#C9A84C", transform: "translateX(-50%)", pointerEvents: "none",
-        }}>
-          <div style={{
-            position: "absolute", top: "50%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 36, height: 36, borderRadius: "50%",
-            background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#1a1a1a", fontSize: 14, fontWeight: 700,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-          }}>↔</div>
-        </div>
-      </div>
-    );
+  // Agrupa por ordem real do banco (floor(order/2) = índice do par, order%2 = lado)
+  const pairsMap = new Map<number, { before?: MediaItem; after?: MediaItem }>();
+  for (const item of items) {
+    const pairIdx = Math.floor(item.order / 2);
+    const side = item.order % 2 === 0 ? "before" : "after";
+    if (!pairsMap.has(pairIdx)) pairsMap.set(pairIdx, {});
+    pairsMap.get(pairIdx)![side] = item;
   }
+  // Ordena pares por índice e filtra pares que têm ao menos uma imagem
+  const pairs = Array.from(pairsMap.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([, v]) => v)
+    .filter(p => p.before || p.after);
 
-  const pairs: [MediaItem, MediaItem][] = [];
-  for (let i = 0; i + 1 < items.length; i += 2) pairs.push([items[i], items[i + 1]]);
-
-  const displayPairs: [MediaItem, MediaItem][] = pairs.length > 0 ? pairs : [
-    [{ id: "ba1", signedUrl: "", url: "" }, { id: "ba2", signedUrl: "", url: "" }],
-    [{ id: "ba3", signedUrl: "", url: "" }, { id: "ba4", signedUrl: "", url: "" }],
-    [{ id: "ba5", signedUrl: "", url: "" }, { id: "ba6", signedUrl: "", url: "" }],
+  type Pair = { before?: MediaItem; after?: MediaItem };
+  const PLACEHOLDER: MediaItem = { id: "", signedUrl: "", url: "", order: 0 };
+  const displayPairs: Pair[] = pairs.length > 0 ? pairs : [
+    { before: { ...PLACEHOLDER, id: "ph1" }, after: { ...PLACEHOLDER, id: "ph2" } },
+    { before: { ...PLACEHOLDER, id: "ph3" }, after: { ...PLACEHOLDER, id: "ph4" } },
+    { before: { ...PLACEHOLDER, id: "ph5" }, after: { ...PLACEHOLDER, id: "ph6" } },
   ];
 
   const handleScroll = () => {
@@ -300,8 +330,13 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
               scrollbarWidth: "none",
             }}
           >
-            {displayPairs.map(([before, after]) => (
-              <SliderCard key={before.id} before={before} after={after} isMobile={true} />
+            {displayPairs.map((pair, idx) => (
+              <SliderCard
+                key={pair.before?.id ?? pair.after?.id ?? `ph-${idx}`}
+                before={pair.before ?? { id: `ph-b-${idx}`, signedUrl: "", url: "", order: idx * 2 }}
+                after={pair.after ?? { id: `ph-a-${idx}`, signedUrl: "", url: "", order: idx * 2 + 1 }}
+                isMobile={true}
+              />
             ))}
           </div>
           <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
@@ -331,8 +366,13 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
           maxWidth: displayPairs.length === 1 ? 480 : "100%",
           margin: displayPairs.length === 1 ? "0 auto" : undefined,
         }}>
-          {displayPairs.map(([before, after]) => (
-            <SliderCard key={before.id} before={before} after={after} isMobile={false} />
+          {displayPairs.map((pair, idx) => (
+            <SliderCard
+              key={pair.before?.id ?? pair.after?.id ?? `ph-${idx}`}
+              before={pair.before ?? { id: `ph-b-${idx}`, signedUrl: "", url: "", order: idx * 2 }}
+              after={pair.after ?? { id: `ph-a-${idx}`, signedUrl: "", url: "", order: idx * 2 + 1 }}
+              isMobile={false}
+            />
           ))}
         </div>
       )}
