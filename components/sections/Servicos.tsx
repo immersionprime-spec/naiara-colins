@@ -243,13 +243,15 @@ export default function Servicos({ data }: { data: ServicesData }) {
   }, []);
 
   const hair = data.hair.length ? data.hair : [
-    { id: "h1", name: "Color Experience", description: "Mechas personalizadas e coloração de alto padrão", icon: null },
-    { id: "h2", name: "Corte & Escova Premium", description: "Design personalizado com finalização impecável", icon: null },
-    { id: "h3", name: "Tratamentos Capilares Intensivos", description: "Hidratação, reconstrução e nutrição profunda", icon: null },
-    { id: "h4", name: "Botox Capilar Renewal", description: "Rejuvenescimento e selagem dos fios", icon: null },
-    { id: "h5", name: "Escova Lisa Perfeita", description: "Alinhamento e polimento dos fios", icon: null },
-    { id: "h6", name: "Alinhamento Capilar Avançado", description: "Redução de volume e disciplina dos fios", icon: null },
-    { id: "h7", name: "Noiva & Ocasiões Especiais", description: "Penteado e make exclusivos para momentos inesquecíveis", icon: null },
+    { id: "h1", name: "Noiva & Ocasiões Especiais",       description: "Maquiagem e penteado exclusivos para momentos inesquecíveis", icon: null },
+    { id: "h2", name: "Color Experience",                  description: "Mechas personalizadas e coloração de alto padrão",             icon: null },
+    { id: "h3", name: "Styling & Finalização",             description: "Babyliss, escova e acabamento profissional",                   icon: null },
+    { id: "h4", name: "Corte & Escova Premium",            description: "Design personalizado com finalização impecável",               icon: null },
+    { id: "h5", name: "Hair Extension (Mega Hair)",        description: "Alongamento com naturalidade e sofisticação",                  icon: null },
+    { id: "h6", name: "Escova Lisa Perfeita",              description: "Alinhamento e polimento dos fios",                            icon: null },
+    { id: "h7", name: "Alinhamento Capilar Avançado",      description: "Redução de volume e disciplina dos fios",                     icon: null },
+    { id: "h8", name: "Tratamentos Capilares Intensivos",  description: "Hidratação, reconstrução e nutrição profunda",                icon: null },
+    { id: "h9", name: "Botox Capilar Renewal",             description: "Rejuvenescimento e selagem dos fios",                        icon: null },
   ];
 
   const nail = data.nail.length ? data.nail : [
@@ -259,12 +261,16 @@ export default function Servicos({ data }: { data: ServicesData }) {
   ];
 
   const estetica = data.estetica.length ? data.estetica : [
-    { id: "e1", name: "Lash Lifting", description: "Curvatura e destaque natural dos cílios", icon: null },
-    { id: "e2", name: "Design de Sobrancelhas", description: "Harmonização perfeita do olhar", icon: null },
-    { id: "e3", name: "Brow Lamination", description: "Sobrancelhas alinhadas e volumosas", icon: null },
-    { id: "e4", name: "Preenchimento Labial", description: "Volume e contorno sofisticado", icon: null },
-    { id: "e5", name: "Limpeza de Pele Premium", description: "Purificação e revitalização completa", icon: null },
-    { id: "e6", name: "Drenagem Linfática", description: "Redução de inchaço e melhora da circulação", icon: null },
+    { id: "e1",  name: "Brow Lamination",            description: "Sobrancelhas alinhadas e volumosas",                       icon: null },
+    { id: "e2",  name: "Design de Sobrancelhas",     description: "Harmonização perfeita do olhar",                           icon: null },
+    { id: "e3",  name: "Lash Lifting",               description: "Curvatura e destaque natural dos cílios",                  icon: null },
+    { id: "e4",  name: "Preenchimento Labial",       description: "Volume e contorno sofisticado",                            icon: null },
+    { id: "e5",  name: "Micropigmentação Labial",    description: "Cor e definição duradoura",                               icon: null },
+    { id: "e6",  name: "Preenchimento de Olheiras",  description: "Revitalização do olhar",                                  icon: null },
+    { id: "e7",  name: "Peeling do Mar Morto",       description: "Renovação profunda da pele",                              icon: null },
+    { id: "e8",  name: "Peeling Químico",            description: "Tratamento avançado para textura e luminosidade",         icon: null },
+    { id: "e9",  name: "Limpeza de Pele Premium",    description: "Purificação e revitalização completa",                    icon: null },
+    { id: "e10", name: "Drenagem Linfática",         description: "Redução de inchaço e melhora da circulação",              icon: null },
   ];
 
   return (
@@ -311,6 +317,7 @@ export default function Servicos({ data }: { data: ServicesData }) {
               services={estetica}
               title={t("categorias.estetica")}
               desc={t("categorias.estetica_desc")}
+              featured
               isMobile={isMobile}
             />
           </div>
