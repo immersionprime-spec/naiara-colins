@@ -64,6 +64,9 @@ function ServiceItem({ service, isMobile }: { service: Service; isMobile: boolea
   return (
     <motion.div
       variants={revealVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "0px 0px -40px 0px" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
