@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import CursosHome from "@/components/sections/CursosHome";
 import Depoimentos from "@/components/sections/Depoimentos";
 import Diferenciais from "@/components/sections/Diferenciais";

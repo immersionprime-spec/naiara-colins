@@ -39,6 +39,43 @@ async function uploadFile(file: File, section: string, isPrimary = false): Promi
   if (isVideo && file.size > maxVid) { toast("Arquivo muito grande. Use vídeos de até 500MB.", "error"); return null; }
   if (isImage && file.size > maxImg) { toast("Arquivo muito grande. Use imagens de até 10MB.", "error"); return null; }
 
+  // Vídeos: upload direto para o Supabase Storage (bypass do limite 4.5MB do Vercel)
+  if (isVideo) {
+    try {
+      // 1. Gera signed upload URL no servidor
+      const urlRes = await fetch("/api/media/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, bucket: "media", fileName: file.name }),
+      });
+      if (!urlRes.ok) throw new Error("upload-url failed");
+      const { signedUrl, path } = await urlRes.json();
+
+      // 2. PUT direto para o Supabase Storage (sem passar pelo Vercel)
+      const putRes = await fetch(signedUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!putRes.ok) throw new Error("direct put failed");
+
+      // 3. Registra no banco
+      const regRes = await fetch("/api/media/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path, section, bucket: "media", isPrimary, type: "video" }),
+      });
+      if (!regRes.ok) throw new Error("register failed");
+
+      toast("Salvo com sucesso!", "success");
+      return path;
+    } catch {
+      toast("Conexão instável. Tente novamente.", "error");
+      return null;
+    }
+  }
+
+  // Imagens: rota normal (ficam dentro do limite do Vercel)
   const fd = new FormData();
   fd.append("file", file);
   fd.append("section", section);
@@ -50,7 +87,7 @@ async function uploadFile(file: File, section: string, isPrimary = false): Promi
     if (!res.ok) throw new Error();
     const data = await res.json();
     toast("Salvo com sucesso!", "success");
-    return data.url ?? null;
+    return data.path ?? null;
   } catch {
     toast("Conexão instável. Tente novamente.", "error");
     return null;
