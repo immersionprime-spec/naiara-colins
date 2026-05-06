@@ -118,37 +118,49 @@ function GaleriaEspaco({ items, isMobile }: { items: MediaItem[]; isMobile: bool
         /* Desktop grid 3 columns */
         <>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-            {display.map((item, i) => (
-              <div
-                key={item.id}
-                onClick={() => item.signedUrl && setLightboxIdx(i)}
-                style={{ aspectRatio: "4/3", overflow: "hidden", cursor: item.signedUrl ? "pointer" : "default", background: "#111", borderRadius: 4, position: "relative" }}
-              >
-                {item.signedUrl ? (
-                  <Image
-                    src={item.signedUrl}
-                    alt={`Interior do Naiara Colin — área ${i + 1}`}
-                    fill
-                    sizes="(max-width: 1280px) 33vw, 427px"
-                    style={{ objectFit: "cover", transition: "transform 300ms ease" }}
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAARCAABAAEDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgUH/8QAIhAAAQMEAwEBAAAAAAAAAAAAAQIDBAAFERIhMUH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AoOl2u6XC4uW+2suyXkuFtDaSpaiDnGBkntVqtVUCAoJAGBgCiig/9k="
-                    unoptimized={item.signedUrl.includes("token=")}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1.05)")}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1)")}
-                  />
-                ) : <CrownFallback />}
-              </div>
-            ))}
+            {(() => {
+              const displayWithUrl = display.filter(m => m.signedUrl);
+              return display.map((item, i) => (
+                <div
+                  key={item.id}
+                  onClick={() => {
+                    if (!item.signedUrl) return;
+                    const filteredIdx = displayWithUrl.findIndex(m => m.id === item.id);
+                    if (filteredIdx !== -1) setLightboxIdx(filteredIdx);
+                  }}
+                  style={{ aspectRatio: "4/3", overflow: "hidden", cursor: item.signedUrl ? "pointer" : "default", background: "#111", borderRadius: 4, position: "relative" }}
+                >
+                  {item.signedUrl ? (
+                    <Image
+                      src={item.signedUrl}
+                      alt={`Interior do Naiara Colin — área ${i + 1}`}
+                      fill
+                      sizes="(max-width: 1280px) 33vw, 427px"
+                      style={{ objectFit: "cover", transition: "transform 300ms ease" }}
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAARCAABAAEDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgUH/8QAIhAAAQMEAwEBAAAAAAAAAAAAAQIDBAAFERIhMUH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AoOl2u6XC4uW+2suyXkuFtDaSpaiDnGBkntVqtVUCAoJAGBgCiig/9k="
+                      unoptimized={item.signedUrl.includes("token=")}
+                      onMouseEnter={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1.05)")}
+                      onMouseLeave={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1)")}
+                    />
+                  ) : <CrownFallback />}
+                </div>
+              ));
+            })()}
           </div>
-          {lightboxIdx !== null && display.some(m => m.signedUrl) && (
-            <Lightbox
-              items={display.filter(m => m.signedUrl)}
-              index={lightboxIdx}
-              onClose={() => setLightboxIdx(null)}
-              onNav={(d) => setLightboxIdx(prev => prev === null ? 0 : (prev + d + display.length) % display.length)}
-            />
-          )}
+          {lightboxIdx !== null && (() => {
+            const displayWithUrl = display.filter(m => m.signedUrl);
+            return displayWithUrl.length > 0 && (
+              <Lightbox
+                items={displayWithUrl}
+                index={lightboxIdx}
+                onClose={() => setLightboxIdx(null)}
+                onNav={(d) => setLightboxIdx(prev =>
+                  prev === null ? 0 : (prev + d + displayWithUrl.length) % displayWithUrl.length
+                )}
+              />
+            );
+          })()}
         </>
       )}
     </div>

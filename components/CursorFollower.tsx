@@ -20,7 +20,10 @@ export default function CursorFollower() {
     if (reducedMotion) return;
 
     // Só mostrar em dispositivos com mouse real (não touch)
-    if (window.matchMedia("(hover: none)").matches) return;
+    const isTouch =
+      window.matchMedia("(hover: none)").matches ||
+      window.matchMedia("(pointer: coarse)").matches;
+    if (isTouch) return;
 
     const onMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);

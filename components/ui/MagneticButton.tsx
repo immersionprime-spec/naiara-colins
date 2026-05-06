@@ -15,6 +15,8 @@ interface MagneticButtonProps {
   ariaLabel?: string;
   strength?: number;
   radius?: number;
+  onMouseEnter?: (e: React.MouseEvent<HTMLElement>) => void;
+  onMouseLeave?: (e: React.MouseEvent<HTMLElement>) => void;
 }
 
 export default function MagneticButton({
@@ -28,8 +30,10 @@ export default function MagneticButton({
   ariaLabel,
   strength = 0.3,
   radius = 70,
+  onMouseEnter,
+  onMouseLeave,
 }: MagneticButtonProps) {
-  const { ref, springX, springY, onMouseMove, onMouseLeave } = useMagnetic({
+  const { ref, springX, springY, onMouseMove, onMouseLeave: magneticLeave } = useMagnetic({
     strength,
     radius,
   });
@@ -38,7 +42,11 @@ export default function MagneticButton({
     style: { x: springX, y: springY, ...style },
     className,
     onMouseMove,
-    onMouseLeave,
+    onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
+      magneticLeave();
+      onMouseLeave?.(e);
+    },
+    onMouseEnter,
   } as const;
 
   if (href) {

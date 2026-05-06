@@ -80,7 +80,7 @@ export default function Footer() {
           letterSpacing: "0.1em",
           textTransform: "uppercase",
         }}>
-          Naiara Colin
+          {tc("nomeMarca")}
         </p>
 
         <motion.span

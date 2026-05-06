@@ -3,7 +3,7 @@
 import { revealVariants } from "@/lib/motion";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import SectionTitle from "../ui/SectionTitle";
 
 type Testimonial = {
@@ -30,14 +30,14 @@ export default function Depoimentos({ data }: { data: Testimonial[] }) {
     { id: "m3", name: "Fernanda M.", photo_url: null, text: "Espaço lindo, sofisticado. Vale cada centavo. Super recomendo!", stars: 5 },
   ];
 
-  const goTo = (idx: number) => {
+  const goTo = useCallback((idx: number) => {
     setCurrent(idx);
     setProgress(0);
     startRef.current = Date.now();
-  };
+  }, []);
 
-  const next = () => goTo((current + 1) % items.length);
-  const prev = () => goTo((current - 1 + items.length) % items.length);
+  const next = useCallback(() => setCurrent(c => (c + 1) % items.length), [items.length]);
+  const prev = useCallback(() => setCurrent(c => (c - 1 + items.length) % items.length), [items.length]);
 
   useEffect(() => {
     if (paused) { cancelAnimationFrame(rafRef.current); return; }
@@ -47,14 +47,14 @@ export default function Depoimentos({ data }: { data: Testimonial[] }) {
       const pct = Math.min((elapsed / INTERVAL) * 100, 100);
       setProgress(pct);
       if (elapsed >= INTERVAL) {
-        goTo((current + 1) % items.length);
+        next();
         return;
       }
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [current, paused, items.length]);
+  }, [current, paused, items.length, next]);
 
   const item = items[current];
 

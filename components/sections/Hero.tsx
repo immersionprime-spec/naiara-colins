@@ -85,6 +85,7 @@ export default function Hero() {
 
   const primary   = items.find((v) => v.is_primary) ?? items[0] ?? null;
   const secondary = items.find((v) => !v.is_primary && v.id !== primary?.id) ?? null;
+  const [ctaHovered, setCtaHovered] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024);
@@ -155,13 +156,15 @@ export default function Hero() {
           <MagneticButton
             href={getWhatsAppLink("geral")}
             onClick={() => trackWhatsAppClick("hero")}
+            onMouseEnter={() => setCtaHovered(true)}
+            onMouseLeave={() => setCtaHovered(false)}
             style={{
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
               border: "1px solid var(--color-gold)",
-              color: "var(--color-gold)",
-              background: "transparent",
+              color: ctaHovered ? "var(--color-text-inverse)" : "var(--color-gold)",
+              background: ctaHovered ? "var(--color-gold)" : "transparent",
               padding: "14px 32px",
               fontFamily: "var(--font-sans)",
               fontWeight: 500,

@@ -112,6 +112,7 @@ export default function Sobre() {
             text={t("titulo")}
             delay={0}
             as="h2"
+            triggerOnView
             style={{
               fontFamily: "var(--font-serif)",
               fontSize: "var(--text-h1)",

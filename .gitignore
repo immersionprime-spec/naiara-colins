@@ -37,3 +37,9 @@ next-env.d.ts
 # prompts internos de desenvolvimento (Cursor / Claude)
 prompt-*.md
 _prompts/
+
+# Supabase temp files
+supabase/.temp/
+
+# Upload temporário
+_tmp_doupload.txt
