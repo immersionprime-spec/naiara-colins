@@ -169,12 +169,12 @@ export default function Header({ locale }: { locale: string }) {
             layoutId="crown-logo"
             animate={{ scale: scrolled ? 0.85 : 1 }}
             transition={{ duration: 0.3 }}
-            style={{ display: "flex", width: 40, height: 40, alignItems: "center" }}
+            style={{ display: "flex", height: 40, alignItems: "center" }}
           >
             <Image
-              src="/logo.png"
+              src="/logo-circle.png"
               alt={tc("logoAlt")}
-              width={40}
+              width={48}
               height={40}
               priority
               style={{ objectFit: "contain" }}

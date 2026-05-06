@@ -67,30 +67,35 @@ export default function CursorFollower() {
         left: 0,
         x,
         y,
-        width: isHovering ? 52 : 36,
-        height: isHovering ? 52 : 36,
-        borderRadius: "50%",
-        zIndex: 99999,
         pointerEvents: "none",
+        zIndex: 99999,
         opacity: visible ? (isHovering ? 1 : 0.55) : 0,
-        transition: "width 200ms ease, height 200ms ease, opacity 200ms ease",
-        transform: "translate(-50%, -50%)",
       }}
     >
-      <img
-        src="/logo-circle.png"
-        alt=""
-        draggable={false}
+      <div
         style={{
-          width: "100%",
-          height: "100%",
+          width: isHovering ? 52 : 36,
+          height: isHovering ? 52 : 36,
           borderRadius: "50%",
-          objectFit: "cover",
-          display: "block",
-          filter: isHovering ? "none" : "grayscale(20%)",
-          transition: "filter 200ms ease",
+          overflow: "hidden",
+          transform: "translate(-50%, -50%)",
+          transition: "width 200ms ease, height 200ms ease",
         }}
-      />
+      >
+        <img
+          src="/logo-circle.png"
+          alt=""
+          draggable={false}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+            filter: isHovering ? "none" : "grayscale(20%)",
+            transition: "filter 200ms ease",
+          }}
+        />
+      </div>
     </motion.div>
   );
 }

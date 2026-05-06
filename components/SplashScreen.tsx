@@ -61,9 +61,9 @@ export default function SplashScreen() {
               transition={reducedMotion ? { duration: 0 } : { duration: 1.5, times: [0, 0.3, 0.8, 1] }}
             >
               <Image
-                src="/logo.png"
+                src="/logo-circle.png"
                 alt={tc("logoAlt")}
-                width={120}
+                width={144}
                 height={120}
                 priority
                 style={{ objectFit: "contain" }}

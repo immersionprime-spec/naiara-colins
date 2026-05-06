@@ -8,7 +8,6 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import RevealText from "../ui/RevealText";
 import MagneticButton from "../ui/MagneticButton";
 import GoldParticles from "../ui/GoldParticles";
@@ -140,27 +139,6 @@ export default function Hero() {
         paddingBottom: "8vh",
         textAlign: "center",
       }}>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-        >
-          <Image
-            src="/logo-circle.png"
-            alt="Naiara Colin Espaço de Beleza"
-            width={isMobile ? 72 : 96}
-            height={isMobile ? 72 : 96}
-            priority
-            style={{
-              borderRadius: "50%",
-              border: "1.5px solid rgba(201,168,76,0.55)",
-              boxShadow: "0 0 24px rgba(201,168,76,0.18)",
-              objectFit: "cover",
-            }}
-          />
-        </motion.div>
-
         <RevealText
           text={t("tagline")}
           delay={0.6}
