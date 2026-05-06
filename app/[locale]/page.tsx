@@ -15,7 +15,7 @@ import LgpdBanner from "@/components/LgpdBanner";
 import SectionTitleObserver from "@/components/SectionTitleObserver";
 import SplashScreen from "@/components/SplashScreen";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
-import { getHeroVideos, getMediaBySection } from "@/lib/media";
+import { getMediaBySection } from "@/lib/media";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { setRequestLocale } from "next-intl/server";
 
@@ -83,16 +83,12 @@ export default async function HomePage({
   setRequestLocale(locale);
 
   const [
-    { video1, video2 },
-    sobreMedia,
     espacoMedia,
     trabalhoMedia,
     cursosMedia,
     services,
     testimonials,
   ] = await Promise.all([
-    getHeroVideos(),
-    getMediaBySection("sobre"),
     getMediaBySection("galeria-espaco"),
     getMediaBySection("galeria-trabalho"),
     getMediaBySection("cursos"),
@@ -100,7 +96,6 @@ export default async function HomePage({
     fetchTestimonials(),
   ]);
 
-  const sobreVideo = sobreMedia[0]?.signedUrl ?? "";
   const cursosImage = cursosMedia[0]?.signedUrl ?? "";
 
   return (
@@ -108,8 +103,8 @@ export default async function HomePage({
       <SplashScreen />
       <Header locale={locale} />
       <main>
-        <Hero video1={video1} video2={video2} />
-        <Sobre videoUrl={sobreVideo} />
+        <Hero />
+        <Sobre />
         <Servicos data={services} />
         <Diferenciais />
         <Galeria espaco={espacoMedia} trabalho={trabalhoMedia} />

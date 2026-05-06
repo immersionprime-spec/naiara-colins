@@ -1,15 +1,14 @@
 "use client";
 
 import { revealVariants } from "@/lib/motion";
+import { useMedia } from "@/hooks/useMedia";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-interface SobreProps {
-  videoUrl: string;
-}
-
-export default function Sobre({ videoUrl }: SobreProps) {
+export default function Sobre() {
+  const { items } = useMedia("sobre");
+  const videoUrl = items[0]?.signedUrl ?? "";
   const t = useTranslations("sobre");
   const [expanded, setExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
