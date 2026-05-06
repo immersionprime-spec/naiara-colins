@@ -30,7 +30,7 @@ function ToastContainer() {
 }
 
 // ── Upload helper ──────────────────────────────────────────────────────────
-async function uploadFile(file: File, section: string, isPrimary = false): Promise<string | null> {
+async function uploadFile(file: File, section: string, isPrimary = false): Promise<MediaItem | null> {
   const maxImg = 10 * 1024 * 1024;
   const maxVid = 500 * 1024 * 1024;
   const isVideo = file.type.startsWith("video/");
@@ -169,7 +169,7 @@ async function doUpload(
   isPrimary: boolean,
   onProgress: (p: number) => void,
   order = 0
-): Promise<boolean> {
+): Promise<MediaItem | null> {
   const isVideo = file.type.startsWith("video/");
 
   if (isVideo) {
@@ -180,7 +180,7 @@ async function doUpload(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ section, bucket: "media", fileName: file.name }),
       });
-      if (!urlRes.ok) return false;
+      if (!urlRes.ok) return null;
       const { signedUrl, path } = await urlRes.json();
       onProgress(10);
 
@@ -200,15 +200,16 @@ async function doUpload(
       const reg = await fetch("/api/media/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path, section, bucket: "media", isPrimary, type: "video", order: 0 }),
+        body: JSON.stringify({ path, section, bucket: "media", isPrimary, type: "video", order }),
       });
-      if (!reg.ok) return false;
+      if (!reg.ok) return null;
+      const regData = await reg.json();
       onProgress(100);
-      return true;
-    } catch { return false; }
+      return regData.item ?? null;
+    } catch { return null; }
   }
 
-  return new Promise<boolean>((resolve) => {
+  return new Promise<MediaItem | null>((resolve) => {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("section", section);
@@ -218,8 +219,13 @@ async function doUpload(
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 95));
     };
-    xhr.onload  = () => { onProgress(100); resolve(xhr.status >= 200 && xhr.status < 300); };
-    xhr.onerror = () => resolve(false);
+    xhr.onload = () => {
+      onProgress(100);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try { const d = JSON.parse(xhr.responseText); resolve(d.item ?? null); } catch { resolve(null); }
+      } else { resolve(null); }
+    };
+    xhr.onerror = () => resolve(null);
     fd.append("order", String(order));
     xhr.open("POST", "/api/media/upload");
     xhr.send(fd);
@@ -360,11 +366,12 @@ function GaleriaEspacoAdmin({ items, onRefresh }: { items: MediaItem[]; onRefres
 }
 
 // Par antes/depois individual
-function ParAnteDepois({ pairIndex, before, after, onRefresh }: {
+function ParAnteDepois({ pairIndex, before, after, onAddItem, onRemoveItem }: {
   pairIndex: number;
   before: MediaItem | undefined;
   after: MediaItem | undefined;
-  onRefresh: () => void;
+  onAddItem: (item: MediaItem) => void;
+  onRemoveItem: (id: string) => void;
 }) {
   const beforeRef = useRef<HTMLInputElement>(null);
   const afterRef  = useRef<HTMLInputElement>(null);
@@ -381,17 +388,25 @@ function ParAnteDepois({ pairIndex, before, after, onRefresh }: {
     setProg: (p: number) => void
   ) => {
     setState("uploading"); setProg(0);
-    if (current) await fetch(`/api/admin/media?id=${current.id}`, { method: "DELETE" });
+    // Remove o atual do estado local imediatamente (sem round-trip)
+    if (current) onRemoveItem(current.id);
     const order = pairIndex * 2 + (slot === "before" ? 0 : 1);
-    const ok = await doUpload(file, "galeria-trabalho", false, setProg, order);
-    setState(ok ? "done" : "error");
-    if (ok) { setTimeout(() => setState("idle"), 2000); onRefresh(); }
+    const item = await doUpload(file, "galeria-trabalho", false, setProg, order);
+    if (item) {
+      onAddItem({ ...item, order });
+      setState("done");
+      setTimeout(() => setState("idle"), 1500);
+    } else {
+      // Reverte remoção otimista se falhou
+      if (current) onAddItem(current);
+      setState("error");
+    }
   };
 
   const remove = async (item: MediaItem | undefined) => {
     if (!item || !confirm("Remover esta foto?")) return;
+    onRemoveItem(item.id); // otimista: remove da UI na hora
     await fetch(`/api/admin/media?id=${item.id}`, { method: "DELETE" });
-    onRefresh();
   };
 
   const SlotBox = ({
@@ -471,9 +486,8 @@ function ParAnteDepois({ pairIndex, before, after, onRefresh }: {
           <button
             onClick={async () => {
               if (!confirm(`Remover par ${pairIndex + 1} completamente?`)) return;
-              if (before) await fetch(`/api/admin/media?id=${before.id}`, { method: "DELETE" });
-              if (after)  await fetch(`/api/admin/media?id=${after.id}`,  { method: "DELETE" });
-              onRefresh();
+              if (before) { onRemoveItem(before.id); await fetch(`/api/admin/media?id=${before.id}`, { method: "DELETE" }); }
+              if (after)  { onRemoveItem(after.id);  await fetch(`/api/admin/media?id=${after.id}`,  { method: "DELETE" }); }
             }}
             style={{ background: "none", border: "none", color: "#e55555", fontFamily: "DM Sans, sans-serif", fontSize: 11, cursor: "pointer" }}
           >
@@ -482,42 +496,40 @@ function ParAnteDepois({ pairIndex, before, after, onRefresh }: {
         )}
       </div>
       <div style={{ display: "flex", gap: 10 }}>
-        <SlotBox
-          label="Foto ANTES" hint="Estado original do cliente"
-          color="#888888"
+        <SlotBox label="Foto ANTES" hint="Estado original do cliente" color="#888888"
           item={before} state={beforeState} progress={beforeProg}
           inputRef={beforeRef} setState={setBeforeState} setProg={setBeforeProg}
-          slot="before" current={before}
-        />
-        <SlotBox
-          label="Foto DEPOIS" hint="Resultado final do trabalho"
-          color="#C9A84C"
+          slot="before" current={before} />
+        <SlotBox label="Foto DEPOIS" hint="Resultado final do trabalho" color="#C9A84C"
           item={after} state={afterState} progress={afterProg}
           inputRef={afterRef} setState={setAfterState} setProg={setAfterProg}
-          slot="after" current={after}
-        />
+          slot="after" current={after} />
       </div>
     </div>
   );
 }
 
-function GaleriaTrabalhoAdmin({ items, onRefresh }: { items: MediaItem[]; onRefresh: () => void }) {
-  // Agrupa em pares pelo campo order: order 0,1 = par 0; order 2,3 = par 1; etc.
-  const sorted = [...items].sort((a, b) => a.order - b.order);
-  const maxOrder = sorted.length > 0 ? sorted[sorted.length - 1].order : -1;
-  const pairCount = maxOrder >= 0 ? Math.floor(maxOrder / 2) + 1 : 1;
 
-  const pairs: { before?: MediaItem; after?: MediaItem }[] = Array.from({ length: pairCount }, (_, i) => ({
+function GaleriaTrabalhoAdmin({ items, onAddItem, onRemoveItem }: {
+  items: MediaItem[];
+  onAddItem: (item: MediaItem) => void;
+  onRemoveItem: (id: string) => void;
+}) {
+  const sorted   = [...items].sort((a, b) => a.order - b.order);
+  const maxOrder = sorted.length > 0 ? sorted[sorted.length - 1].order : -1;
+  const dbPairs  = maxOrder >= 0 ? Math.floor(maxOrder / 2) + 1 : 0;
+
+  // Pares extras locais — instantâneo, sem round-trip
+  const [extraPairs, setExtraPairs] = useState(dbPairs === 0 ? 1 : 0);
+  const totalPairs = Math.max(dbPairs + extraPairs, 1);
+
+  // Quando o DB cresce (após upload), zera extras pois dbPairs já cresceu
+  useEffect(() => { if (dbPairs > 0) setExtraPairs(0); }, [dbPairs]);
+
+  const pairs = Array.from({ length: totalPairs }, (_, i) => ({
     before: sorted.find(m => m.order === i * 2),
     after:  sorted.find(m => m.order === i * 2 + 1),
   }));
-
-  const addPair = () => {
-    // Só exibe visualmente um novo par vazio; o upload definirá o order correto
-    onRefresh(); // refresh para recalcular
-  };
-
-  const nextPairIndex = Math.ceil((maxOrder + 2) / 2);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -529,23 +541,13 @@ function GaleriaTrabalhoAdmin({ items, onRefresh }: { items: MediaItem[]; onRefr
       </div>
 
       {pairs.map((pair, i) => (
-        <ParAnteDepois
-          key={i}
-          pairIndex={i}
-          before={pair.before}
-          after={pair.after}
-          onRefresh={onRefresh}
-        />
+        <ParAnteDepois key={`pair-${i}`} pairIndex={i}
+          before={pair.before} after={pair.after}
+          onAddItem={onAddItem} onRemoveItem={onRemoveItem} />
       ))}
 
       <button
-        onClick={() => {
-          // Cria visualmente um par novo — o usuário clicará em Enviar dentro do par
-          const newPairs = [...pairs, { before: undefined, after: undefined }];
-          // Forçamos re-render aumentando pairCount via artifício: fazemos refresh que não muda nada
-          // mas o nextPairIndex já estará correto no próximo ParAnteDepois
-          onRefresh();
-        }}
+        onClick={() => setExtraPairs(e => e + 1)}
         style={{ padding: "14px 0", background: "transparent", border: "1px dashed #2a2a2a", borderRadius: 8, color: "#666", fontFamily: "DM Sans, sans-serif", fontSize: 13, cursor: "pointer", width: "100%" }}
       >
         + Adicionar novo par (antes/depois)
@@ -603,7 +605,11 @@ function MidiasTab() {
                 })}
               </div>
             ) : def.id === "galeria-trabalho" ? (
-              <GaleriaTrabalhoAdmin items={sectionItems} onRefresh={refresh} />
+              <GaleriaTrabalhoAdmin
+                items={sectionItems}
+                onAddItem={(item) => setMedia(prev => [...prev, item])}
+                onRemoveItem={(id) => setMedia(prev => prev.filter(m => m.id !== id))}
+              />
             ) : (
               <GaleriaEspacoAdmin items={sectionItems} onRefresh={refresh} />
             )}
