@@ -358,12 +358,13 @@ function GaleriaEspacoAdmin({ items, onRefresh }: { items: MediaItem[]; onRefres
 }
 
 // Par antes/depois individual
-function ParAnteDepois({ pairIndex, before, after, onAddItem, onRemoveItem }: {
+function ParAnteDepois({ pairIndex, before, after, onAddItem, onRemoveItem, onRefresh }: {
   pairIndex: number;
   before: MediaItem | undefined;
   after: MediaItem | undefined;
   onAddItem: (item: MediaItem) => void;
   onRemoveItem: (id: string) => void;
+  onRefresh: () => void;
 }) {
   const beforeRef = useRef<HTMLInputElement>(null);
   const afterRef  = useRef<HTMLInputElement>(null);
@@ -384,14 +385,12 @@ function ParAnteDepois({ pairIndex, before, after, onAddItem, onRemoveItem }: {
     if (current) onRemoveItem(current.id);
     const order = pairIndex * 2 + (slot === "before" ? 0 : 1);
     const ok = await doUpload(file, "galeria-trabalho", false, setProg, order);
-    if (item) {
-      onAddItem({ ...item, order });
-      setState("done");
+    setState(ok ? "done" : "error");
+    if (ok) {
       setTimeout(() => setState("idle"), 1500);
-    } else {
-      // Reverte remoção otimista se falhou
-      if (current) onAddItem(current);
-      setState("error");
+      onRefresh();
+    } else if (current) {
+      onAddItem(current); // reverte remoção otimista
     }
   };
 
@@ -502,10 +501,11 @@ function ParAnteDepois({ pairIndex, before, after, onAddItem, onRemoveItem }: {
 }
 
 
-function GaleriaTrabalhoAdmin({ items, onAddItem, onRemoveItem }: {
+function GaleriaTrabalhoAdmin({ items, onAddItem, onRemoveItem, onRefresh }: {
   items: MediaItem[];
   onAddItem: (item: MediaItem) => void;
   onRemoveItem: (id: string) => void;
+  onRefresh: () => void;
 }) {
   const sorted   = [...items].sort((a, b) => a.order - b.order);
   const maxOrder = sorted.length > 0 ? sorted[sorted.length - 1].order : -1;
@@ -535,7 +535,7 @@ function GaleriaTrabalhoAdmin({ items, onAddItem, onRemoveItem }: {
       {pairs.map((pair, i) => (
         <ParAnteDepois key={`pair-${i}`} pairIndex={i}
           before={pair.before} after={pair.after}
-          onAddItem={onAddItem} onRemoveItem={onRemoveItem} />
+          onAddItem={onAddItem} onRemoveItem={onRemoveItem} onRefresh={onRefresh} />
       ))}
 
       <button
@@ -601,6 +601,7 @@ function MidiasTab() {
                 items={sectionItems}
                 onAddItem={(item) => setMedia(prev => [...prev, item])}
                 onRemoveItem={(id) => setMedia(prev => prev.filter(m => m.id !== id))}
+                onRefresh={refresh}
               />
             ) : (
               <GaleriaEspacoAdmin items={sectionItems} onRefresh={refresh} />
