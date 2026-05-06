@@ -155,51 +155,23 @@ function GaleriaEspaco({ items, isMobile }: { items: MediaItem[]; isMobile: bool
 }
 
 // ─── SliderCard — fora de GaleriaTrabalho ──────────────────────────────────
-function SliderCard({ before, after, isMobile: mobile }: {
+function SliderCard({ before, after }: {
   before: MediaItem;
   after: MediaItem;
-  isMobile: boolean;
 }) {
   const [position, setPosition] = useState(50);
-  const [showAfter, setShowAfter] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
 
   const CARD_STYLE: import("react").CSSProperties = {
     position: "relative",
-    height: "min(52vh, 500px)",
+    width: "100%",
+    aspectRatio: "3/4",
     overflow: "hidden",
     borderRadius: 4,
     border: "1px solid var(--color-border)",
     background: "#111",
   };
-
-  if (mobile) {
-    return (
-      <div
-        onClick={() => setShowAfter(s => !s)}
-        style={{ ...CARD_STYLE, cursor: "pointer", flexShrink: 0, minWidth: "85%", scrollSnapAlign: "start" }}
-      >
-        {(showAfter ? after : before).signedUrl
-          ? <img
-              src={(showAfter ? after : before).signedUrl}
-              alt={showAfter ? "Depois" : "Antes"}
-              draggable={false}
-              style={{ width: "100%", height: "100%", objectFit: "cover", userSelect: "none", pointerEvents: "none" }}
-            />
-          : <CrownFallback />
-        }
-        <div style={{
-          position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
-          background: "rgba(0,0,0,0.75)", color: "#C9A84C",
-          padding: "6px 14px", fontSize: 12, fontFamily: "var(--font-sans)", borderRadius: 2, whiteSpace: "nowrap",
-          pointerEvents: "none",
-        }}>
-          {showAfter ? "← Ver antes" : "Ver depois →"}
-        </div>
-      </div>
-    );
-  }
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -224,33 +196,22 @@ function SliderCard({ before, after, isMobile: mobile }: {
       onDragStart={(e) => e.preventDefault()}
       style={{ ...CARD_STYLE, cursor: "col-resize", userSelect: "none", touchAction: "none" }}
     >
-      {/* Before — fully visible underneath, sem pointer events */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
         {before.signedUrl
-          ? <img
-              src={before.signedUrl}
-              alt="Antes"
-              draggable={false}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+          ? <img src={before.signedUrl} alt="Antes" draggable={false}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           : <CrownFallback />
         }
       </div>
-      {/* After — clipped da esquerda em position%, sem pointer events */}
       <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 0 0 ${position}%)`, pointerEvents: "none" }}>
         <div style={{ position: "absolute", inset: 0 }}>
           {after.signedUrl
-            ? <img
-                src={after.signedUrl}
-                alt="Depois"
-                draggable={false}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
+            ? <img src={after.signedUrl} alt="Depois" draggable={false}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             : <CrownFallback />
           }
         </div>
       </div>
-      {/* Divider */}
       <div style={{
         position: "absolute", top: 0, bottom: 0, left: `${position}%`,
         width: 2, background: "#C9A84C", transform: "translateX(-50%)", pointerEvents: "none",
@@ -297,12 +258,6 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
     { before: { ...PLACEHOLDER, id: "ph5" }, after: { ...PLACEHOLDER, id: "ph6" } },
   ];
 
-  const handleScroll = () => {
-    if (!scrollRef.current) return;
-    const idx = Math.round(scrollRef.current.scrollLeft / (scrollRef.current.offsetWidth * 0.85));
-    setActiveDot(Math.min(idx, displayPairs.length - 1));
-  };
-
   return (
     <div>
       <h3 style={{
@@ -315,11 +270,17 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
       </h3>
 
       {isMobile ? (
-        /* Mobile: snap carousel */
         <>
           <div
             ref={scrollRef}
-            onScroll={handleScroll}
+            onScroll={() => {
+              if (!scrollRef.current) return;
+              const child = scrollRef.current.firstElementChild as HTMLElement | null;
+              if (!child) return;
+              const cardWidth = child.offsetWidth + 12;
+              const idx = Math.round(scrollRef.current.scrollLeft / cardWidth);
+              setActiveDot(Math.min(idx, displayPairs.length - 1));
+            }}
             style={{
               display: "flex",
               overflowX: "auto",
@@ -332,37 +293,32 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
             }}
           >
             {displayPairs.map((pair, idx) => (
-              <SliderCard
+              <div
                 key={pair.before?.id ?? pair.after?.id ?? `ph-${idx}`}
-                before={pair.before ?? { id: `ph-b-${idx}`, signedUrl: "", url: "", order: idx * 2 }}
-                after={pair.after ?? { id: `ph-a-${idx}`, signedUrl: "", url: "", order: idx * 2 + 1 }}
-                isMobile={true}
-              />
+                style={{ minWidth: "min(280px, 72vw)", flexShrink: 0, scrollSnapAlign: "start" }}
+              >
+                <SliderCard
+                  before={pair.before ?? { id: `ph-b-${idx}`, signedUrl: "", url: "", order: idx * 2 }}
+                  after={pair.after ?? { id: `ph-a-${idx}`, signedUrl: "", url: "", order: idx * 2 + 1 }}
+                />
+              </div>
             ))}
           </div>
           <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
             {displayPairs.map((_, i) => (
-              <span
-                key={i}
-                style={{
-                  width: 6, height: 6, borderRadius: "50%",
-                  background: "#C9A84C",
-                  opacity: i === activeDot ? 1 : 0.3,
-                  transition: "opacity 200ms",
-                }}
-              />
+              <span key={i} style={{
+                width: 6, height: 6, borderRadius: "50%", background: "#C9A84C",
+                opacity: i === activeDot ? 1 : 0.3, transition: "opacity 200ms",
+              }} />
             ))}
           </div>
         </>
       ) : (
-        /* Desktop: grid de cards */
         <div style={{
           display: "grid",
-          gridTemplateColumns: displayPairs.length === 1
-            ? "1fr"
-            : displayPairs.length === 2
-              ? "repeat(2, 1fr)"
-              : "repeat(3, 1fr)",
+          gridTemplateColumns: displayPairs.length === 1 ? "1fr"
+            : displayPairs.length === 2 ? "repeat(2, 1fr)"
+            : "repeat(3, 1fr)",
           gap: 16,
           maxWidth: displayPairs.length === 1 ? 480 : "100%",
           margin: displayPairs.length === 1 ? "0 auto" : undefined,
@@ -372,7 +328,6 @@ function GaleriaTrabalho({ items, isMobile }: { items: MediaItem[]; isMobile: bo
               key={pair.before?.id ?? pair.after?.id ?? `ph-${idx}`}
               before={pair.before ?? { id: `ph-b-${idx}`, signedUrl: "", url: "", order: idx * 2 }}
               after={pair.after ?? { id: `ph-a-${idx}`, signedUrl: "", url: "", order: idx * 2 + 1 }}
-              isMobile={false}
             />
           ))}
         </div>
