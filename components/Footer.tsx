@@ -67,20 +67,31 @@ export default function Footer() {
         textAlign: "center",
       }}>
         <Image
-          src="/logo.png"
+          src="/logo-circle.png"
           alt={tc("logoAlt")}
-          width={72}
-          height={72}
+          width={56}
+          height={56}
           style={{ objectFit: "contain" }}
         />
         <p style={{
           fontFamily: "var(--font-serif)",
-          fontSize: "var(--text-h3)",
-          color: "#C9A84C",
+          fontSize: 22,
           letterSpacing: "0.1em",
           textTransform: "uppercase",
+          color: "#C9A84C",
+          margin: "0 0 4px",
+          fontWeight: 400,
         }}>
           {tc("nomeMarca")}
+        </p>
+        <p style={{
+          fontFamily: "var(--font-serif)",
+          fontStyle: "italic",
+          fontSize: 14,
+          color: "rgba(255,255,255,0.5)",
+          margin: "0 0 18px",
+        }}>
+          {tc("taglineMarca")}
         </p>
 
         <motion.span

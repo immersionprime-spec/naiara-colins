@@ -10,6 +10,8 @@
   },
   "hero": {
     "tagline": "Beauty with experience",
+    "tagline_pre": "Beauty with",
+    "tagline_highlight": "experience",
     "credencial": "★★★★★ Google · Balneário Camboriú, SC",
     "credencial_sub": "Premium salon in the heart of Downtown",
     "cta": "Book your experience",
@@ -17,12 +19,15 @@
   },
   "sobre": {
     "titulo": "About Naiara",
+    "eyebrow": "About Naiara",
     "lerMais": "Read more",
+    "citacao": "\"Beauty isn't a formula. It's listening.\"",
     "texto": "I'm Nay.\n\nA gaúcha at heart, catarinense by choice. I came to Balneário Camboriú for a few days — and stayed six years. As it goes for those who truly belong somewhere.\n\nBut before I was here, the way I am today, there was a version of me who doubted. Who worked far from what she loved, who kept postponing her dream out of fear of not being good enough. Who looked at the art of beauty and thought: this demands so much, so much study, so much courage — am I capable?\n\nI was. I just didn't know it yet.\n\nThe turning point didn't come with a perfect plan. It came through prayer. I went to a church here in Balneário, knelt down, cried and surrendered: 'God, let your will be done.' The next day, I received the proposal that changed my life — the opportunity to take over a salon and, with it, the dream I had buried too deep for too long.\n\nI learned that day that when we let go of control and trust, things happen the way they're meant to.\n\nToday, at 27, I wake up every day to do what I've always loved: work with women's self-esteem. Every client who leaves my chair different from how she arrived is my greatest result. There's no greater reward than that.\n\nNaiara Colin Espaço de Beleza wasn't born overnight. It was born from courage, faith, and hard work — and from the certainty that a dream placed in the right hands, happens.\n\nIf you haven't been here yet, I invite you. This is your place."
   },
   "servicos": {
     "titulo": "Services",
     "subtitulo": "Each service, an experience designed for you",
+    "eyebrow": "What we offer",
     "agendar": "Book",
     "categorias": {
       "hair": "Hair Design & Styling",
@@ -132,6 +137,7 @@
   },
   "common": {
     "logoAlt": "Naiara Colin Espaço de Beleza",
-    "nomeMarca": "Naiara Colin"
+    "nomeMarca": "Naiara Colin",
+    "taglineMarca": "Espaço de Beleza"
   }
 }

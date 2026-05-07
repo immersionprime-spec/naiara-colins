@@ -87,10 +87,13 @@ function ServiceItem({ service, isMobile }: { service: Service; isMobile: boolea
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <SmallDotIcon />
         <h4 style={{
-          fontFamily: "var(--font-serif)",
-          fontSize: "var(--text-h3)",
+          fontFamily: "var(--font-sans)",
+          fontSize: "var(--text-body-sm)",
+          fontWeight: "var(--weight-semibold)" as unknown as number,
+          letterSpacing: "0.02em",
           color: "var(--color-text)",
           lineHeight: 1.3,
+          margin: 0,
         }}>
           {service.name}
         </h4>
@@ -292,7 +295,12 @@ export default function Servicos({ data }: { data: ServicesData }) {
       }}
     >
       <div style={{ maxWidth: "var(--max-width)", margin: "0 auto" }}>
-        <SectionTitle title={t("titulo")} subtitle={t("subtitulo")} align="left" />
+        <SectionTitle
+          title={t("titulo")}
+          subtitle={t("subtitulo")}
+          eyebrow={t("eyebrow")}
+          align="left"
+        />
 
         <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 64 }}>
           {/* Hair — full width featured */}

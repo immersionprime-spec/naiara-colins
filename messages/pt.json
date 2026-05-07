@@ -10,6 +10,8 @@
   },
   "hero": {
     "tagline": "Beleza com experiência",
+    "tagline_pre": "Beleza com",
+    "tagline_highlight": "experiência",
     "credencial": "★★★★★ Google · Balneário Camboriú, SC",
     "credencial_sub": "Salão premium no coração do Centro",
     "cta": "Agende sua experiência",
@@ -17,12 +19,15 @@
   },
   "sobre": {
     "titulo": "Sobre a Naiara",
+    "eyebrow": "Sobre Naiara",
     "lerMais": "Continuar lendo",
+    "citacao": "\"Beleza não é fórmula. É escuta.\"",
     "texto": "Eu sou a Nay.\n\nGaúcha de alma, catarinense de escolha. Vim para Balneário Camboriú para ficar alguns dias — e fiquei seis anos. Como acontece com quem realmente pertence a um lugar.\n\nMas antes de estar aqui, do jeito que estou hoje, existiu uma versão de mim que duvidou. Que trabalhou longe do que amava, que adiou o sonho por medo de não ser boa o suficiente. Que olhava para a arte da beleza e pensava: isso exige muito, exige estudo, exige coragem — será que sou capaz?\n\nEra capaz. Só ainda não sabia.\n\nO ponto de virada não veio com um plano perfeito. Veio com uma oração. Fui a uma igreja aqui em Balneário, joelhei, chorei e entreguei: 'Deus, seja feita a sua vontade.' No dia seguinte, recebi a proposta que mudou minha vida — a oportunidade de assumir um salão e, com ele, o sonho que eu havia guardado fundo demais por tempo demais.\n\nAprendi naquele dia que quando a gente larga o controle e confia, as coisas acontecem do jeito que têm que acontecer.\n\nHoje, com 27 anos, eu acordo todos os dias para fazer o que sempre amei: trabalhar com a autoestima de mulheres. Cada cliente que se levanta da cadeira diferente de como entrou é o meu maior resultado. Não tem prêmio maior do que isso.\n\nO Naiara Colin Espaço de Beleza não nasceu do dia para a noite. Nasceu de coragem, de fé, de muito trabalho — e da certeza de que sonho entregue nas mãos certas, acontece.\n\nSe você ainda não veio, eu te convido. Aqui é o seu lugar."
   },
   "servicos": {
     "titulo": "Serviços",
     "subtitulo": "Cada serviço, uma experiência pensada para você",
+    "eyebrow": "O que oferecemos",
     "agendar": "Agendar",
     "categorias": {
       "hair": "Hair Design & Styling",
@@ -132,6 +137,7 @@
   },
   "common": {
     "logoAlt": "Naiara Colin Espaço de Beleza",
-    "nomeMarca": "Naiara Colin"
+    "nomeMarca": "Naiara Colin",
+    "taglineMarca": "Espaço de Beleza"
   }
 }

@@ -83,7 +83,7 @@ export default function Depoimentos({ data }: { data: Testimonial[] }) {
           {/* Card */}
           <div
             aria-live="polite"
-            style={{ width: "100%", maxWidth: 480, minHeight: 220, position: "relative" }}
+            style={{ width: "100%", maxWidth: 720, minHeight: 220, position: "relative" }}
           >
             <AnimatePresence mode="wait">
               <motion.div
@@ -96,7 +96,7 @@ export default function Depoimentos({ data }: { data: Testimonial[] }) {
                   background: "var(--color-bg-card)",
                   border: "1px solid var(--color-border)",
                   borderRadius: "var(--card-radius)",
-                  padding: "var(--card-padding)",
+                  padding: 56,
                   position: "relative",
                 }}
               >
@@ -194,6 +194,26 @@ export default function Depoimentos({ data }: { data: Testimonial[] }) {
                 transition: paused ? "none" : "width 0.1s linear",
               }}
             />
+          </div>
+
+          {/* Indicadores — barras width-animated */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 20 }}>
+            {items.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                aria-label={`Depoimento ${i + 1}`}
+                style={{
+                  width: i === current ? 24 : 8,
+                  height: 2,
+                  background: i === current ? "#C9A84C" : "rgba(255,255,255,0.2)",
+                  border: 0,
+                  padding: 0,
+                  cursor: "pointer",
+                  transition: "width 200ms ease, background 200ms ease",
+                }}
+              />
+            ))}
           </div>
 
           {/* Arrows */}

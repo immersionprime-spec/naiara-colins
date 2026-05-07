@@ -30,6 +30,7 @@ export default function Sobre({ videoUrl }: { videoUrl: string }) {
         paddingBottom: "var(--section-gap)",
         paddingLeft: "var(--section-padding-x)",
         paddingRight: "var(--section-padding-x)",
+        borderTop: "1px solid rgba(201,168,76,0.08)",
       }}
     >
       <div
@@ -50,7 +51,7 @@ export default function Sobre({ videoUrl }: { videoUrl: string }) {
           viewport={{ once: true }}
           style={{
             flexShrink: 0,
-            width: isMobile ? "100%" : "40%",
+            width: isMobile ? "100%" : "50%",
           }}
         >
           {videoUrl ? (
@@ -105,6 +106,23 @@ export default function Sobre({ videoUrl }: { videoUrl: string }) {
             paddingTop: isMobile ? 0 : 32,
           }}
         >
+          <p style={{
+            fontFamily: "var(--font-sans)",
+            fontSize: "var(--text-eyebrow)",
+            letterSpacing: "var(--tracking-widest)",
+            textTransform: "uppercase",
+            color: "var(--color-gold)",
+            margin: "0 0 14px",
+          }}>
+            {t("eyebrow")}
+          </p>
+          <span style={{
+            display: "block",
+            width: 80,
+            height: 1,
+            background: "var(--color-gold)",
+            marginBottom: 18,
+          }} />
           <RevealText
             text={t("titulo")}
             delay={0}
@@ -133,6 +151,19 @@ export default function Sobre({ videoUrl }: { videoUrl: string }) {
           >
             {texto}
           </div>
+
+          <p style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontSize: "var(--text-body-lg)",
+            color: "rgba(201,168,76,0.85)",
+            lineHeight: "var(--leading-relaxed)",
+            margin: "8px 0",
+            paddingLeft: 18,
+            borderLeft: "1px solid rgba(201,168,76,0.4)",
+          }}>
+            {t("citacao")}
+          </p>
 
           {isMobile && !expanded && (
             <button

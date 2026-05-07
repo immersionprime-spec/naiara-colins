@@ -162,6 +162,9 @@ export default function Header({ locale }: { locale: string }) {
         background: scrolled ? "var(--color-bg-overlay)" : "transparent",
         backdropFilter: scrolled ? "blur(12px)" : "none",
         transition: "background 300ms ease",
+        borderBottom: scrolled
+          ? "1px solid rgba(201,168,76,0.1)"
+          : "1px solid transparent",
       }}>
         {/* Logo */}
         <Link href="/" aria-label="Naiara Colin Espaço de Beleza" style={{ textDecoration: "none" }}>

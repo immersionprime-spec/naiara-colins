@@ -7,9 +7,9 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import RevealText from "../ui/RevealText";
 import MagneticButton from "../ui/MagneticButton";
 import GoldParticles from "../ui/GoldParticles";
+import Image from "next/image";
 
 function VideoPane({ url, isPrimary, side, poster }: { url: string; isPrimary?: boolean; side?: "left" | "right"; poster?: string }) {
   const [loading, setLoading] = useState(true);
@@ -145,19 +145,67 @@ export default function Hero({
         paddingBottom: "8vh",
         textAlign: "center",
       }}>
-        <RevealText
-          text={t("tagline")}
-          delay={0.6}
-          as="h1"
-          style={{
+        {/* Lockup: logo + nome + linha + tagline */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          maxWidth: "min(92vw, 720px)",
+          gap: 0,
+        }}>
+          {/* Logo */}
+          <Image
+            src="/logo-circle.png"
+            alt="Naiara Colin Espaço de Beleza"
+            width={100}
+            height={100}
+            priority
+            style={{
+              objectFit: "contain",
+              marginBottom: 18,
+              filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.6))",
+            }}
+          />
+
+          {/* Nome da marca */}
+          <p style={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 11,
+            letterSpacing: "0.32em",
+            textTransform: "uppercase",
+            color: "#C9A84C",
+            margin: "0 0 14px",
+            whiteSpace: "nowrap",
+          }}>
+            Naiara Colin · Espaço de Beleza
+          </p>
+
+          {/* Linha dourada separadora */}
+          <span style={{
+            display: "block",
+            width: 60,
+            height: 1,
+            background: "rgba(201,168,76,0.6)",
+            marginBottom: 20,
+          }} />
+
+          <h1 style={{
             fontFamily: "var(--font-serif)",
             fontSize: "var(--text-display)",
             lineHeight: "var(--leading-tight)",
             color: "#ffffff",
             textShadow: "0 2px 40px rgba(0,0,0,0.8)",
-            maxWidth: "80vw",
-          }}
-        />
+            fontWeight: 400,
+            letterSpacing: "var(--tracking-tight)",
+            margin: 0,
+            textAlign: "center",
+          }}>
+            {t("tagline_pre")}{" "}
+            <i style={{ color: "#C9A84C", fontStyle: "italic" }}>
+              {t("tagline_highlight")}
+            </i>
+          </h1>
+        </div>
         <motion.div variants={revealVariants} initial="hidden" animate="visible" transition={{ delay: 0.9 } as never}>
           <MagneticButton
             href={getWhatsAppLink("geral")}
