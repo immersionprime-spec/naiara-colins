@@ -43,3 +43,5 @@ supabase/.temp/
 
 # Upload temporário
 _tmp_doupload.txt
+
+.vercel

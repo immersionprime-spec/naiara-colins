@@ -9,8 +9,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import SectionTitle from "../ui/SectionTitle";
 
 /* ─── coordenadas do salão ───────────────────────────────── */
-const LNG = -48.6355;
-const LAT = -26.9947;
+const LNG = -48.6334073;
+const LAT = -26.9912969;
 const ZOOM = 15.5;
 
 /* ─── URL do estilo dark MapTiler ────────────────────────── */
