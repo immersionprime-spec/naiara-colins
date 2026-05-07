@@ -1,9 +1,15 @@
+import { getAdminUser } from "@/lib/auth/admin";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 // Gera uma signed upload URL para o browser fazer PUT direto no Supabase Storage
 // Usado para vídeos grandes que ultrapassariam o limite de 4.5MB do Vercel
 export async function POST(request: Request) {
+  const user = await getAdminUser();
+  if (!user) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
   try {
     const { section, bucket, fileName } = await request.json();
 

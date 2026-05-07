@@ -84,10 +84,14 @@ export default async function HomePage({
   setRequestLocale(locale);
 
   const [
+    heroMedia,
+    sobreMedia,
     cursosMedia,
     services,
     testimonials,
   ] = await Promise.all([
+    getMediaBySection("hero"),
+    getMediaBySection("sobre"),
     getMediaBySection("cursos"),
     fetchServices(),
     fetchTestimonials(),
@@ -95,13 +99,22 @@ export default async function HomePage({
 
   const cursosImage = cursosMedia[0]?.signedUrl ?? "";
 
+  const heroPrimary   = heroMedia.find((v) => v.is_primary) ?? heroMedia[0] ?? null;
+  const heroSecondary = heroMedia.find((v) => !v.is_primary && v.id !== heroPrimary?.id) ?? null;
+  const sobreVideo    = sobreMedia[0] ?? null;
+
   return (
     <LayoutGroup id="nc-crown">
       <SplashScreen />
       <Header locale={locale} />
       <main>
-        <Hero />
-        <Sobre />
+        <Hero
+          primaryVideo={heroPrimary ? { signedUrl: heroPrimary.signedUrl ?? "", is_primary: true } : null}
+          secondaryVideo={heroSecondary ? { signedUrl: heroSecondary.signedUrl ?? "", is_primary: false } : null}
+        />
+        <Sobre
+          videoUrl={sobreVideo?.signedUrl ?? ""}
+        />
         <Servicos data={services} />
         <Diferenciais />
         <Galeria />

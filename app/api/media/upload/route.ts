@@ -1,9 +1,15 @@
+import { getAdminUser } from "@/lib/auth/admin";
 import { NextResponse } from "next/server";
 
 const MAX_IMAGE = 10 * 1024 * 1024;
 const MAX_VIDEO = 500 * 1024 * 1024;
 
 export async function POST(request: Request) {
+  const user = await getAdminUser();
+  if (!user) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 

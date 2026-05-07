@@ -1,7 +1,13 @@
+import { getAdminUser } from "@/lib/auth/admin";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
+  const user = await getAdminUser();
+  if (!user) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
   try {
     const { path, section, bucket, isPrimary, type, order } = await request.json();
 

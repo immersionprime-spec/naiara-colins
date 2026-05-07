@@ -3,7 +3,6 @@
 import { trackWhatsAppClick } from "@/lib/analytics";
 import { heroLeftVariants, heroRightVariants, revealVariants } from "@/lib/motion";
 import { getWhatsAppLink } from "@/lib/whatsapp";
-import { useMedia } from "@/hooks/useMedia";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -77,14 +76,21 @@ function VideoPane({ url, isPrimary, side, poster }: { url: string; isPrimary?: 
   );
 }
 
-export default function Hero() {
+type HeroVideoItem = { signedUrl: string; is_primary: boolean } | null;
+
+export default function Hero({
+  primaryVideo,
+  secondaryVideo,
+}: {
+  primaryVideo: HeroVideoItem;
+  secondaryVideo: HeroVideoItem;
+}) {
   const t = useTranslations("hero");
   const reducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
-  const { items } = useMedia("hero");
 
-  const primary   = items.find((v) => v.is_primary) ?? items[0] ?? null;
-  const secondary = items.find((v) => !v.is_primary && v.id !== primary?.id) ?? null;
+  const primary   = primaryVideo;
+  const secondary = secondaryVideo;
   const [ctaHovered, setCtaHovered] = useState(false);
 
   useEffect(() => {
@@ -103,7 +109,7 @@ export default function Hero() {
       <div style={{ position: "absolute", inset: 0, display: "flex" }}>
         {isMobile ? (
           <div style={{ flex: 1, height: "100%" }}>
-            <VideoPane url={primary?.signedUrl ?? ""} isPrimary side="left" poster={primary?.posterUrl ?? ""} />
+            <VideoPane url={primary?.signedUrl ?? ""} isPrimary side="left" poster="" />
           </div>
         ) : (
           <>
@@ -113,7 +119,7 @@ export default function Hero() {
               animate={reducedMotion ? { opacity: 1 } : "visible"}
               style={{ flex: 1, height: "100%" }}
             >
-              <VideoPane url={primary?.signedUrl ?? ""} isPrimary side="left" poster={primary?.posterUrl ?? ""} />
+              <VideoPane url={primary?.signedUrl ?? ""} isPrimary side="left" poster="" />
             </motion.div>
             <motion.div
               variants={reducedMotion ? undefined : heroRightVariants}
@@ -121,7 +127,7 @@ export default function Hero() {
               animate={reducedMotion ? { opacity: 1 } : "visible"}
               style={{ flex: 1, height: "100%" }}
             >
-              <VideoPane url={secondary?.signedUrl ?? ""} side="right" poster={secondary?.posterUrl ?? ""} />
+              <VideoPane url={secondary?.signedUrl ?? ""} side="right" poster="" />
             </motion.div>
           </>
         )}
