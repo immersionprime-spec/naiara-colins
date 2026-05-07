@@ -4,6 +4,7 @@ const withNextIntl = createNextIntlPlugin("./i18n.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ["maplibre-gl", "react-map-gl"],
   images: {
     formats: ["image/webp"],
     remotePatterns: [

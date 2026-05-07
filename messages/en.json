@@ -63,7 +63,12 @@
     "postCtaBtn": "Book on WhatsApp"
   },
   "mapa": {
-    "titulo": "How to find us"
+    "titulo": "How to find us",
+    "eyebrow_secao": "Location",
+    "eyebrow": "Naiara Colin · Beauty Space",
+    "endereco": "Rua 1500, 397 — Centro, Balneário Camboriú, SC",
+    "horario": "Tuesday to Saturday, 9am – 7pm",
+    "cta": "Book via WhatsApp →"
   },
   "instagram": {
     "titulo": "On Instagram",

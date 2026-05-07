@@ -12,6 +12,7 @@ export type WhatsAppSource =
   | "header"
   | "menu-mobile"
   | "flutuante"
+  | "mapa"
   | "rodape"
   | "cursos"
   | "post-blog"

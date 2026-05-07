@@ -321,6 +321,20 @@ section[id] {
   opacity: var(--divider-opacity);
 }
 
+/* ── MapLibre — override de atribuição para tema dark ─── */
+.maplibregl-ctrl-attrib {
+  background: rgba(10, 10, 10, 0.7) !important;
+  color: rgba(255, 255, 255, 0.35) !important;
+  font-size: 10px !important;
+  border-radius: 0 !important;
+}
+.maplibregl-ctrl-attrib a {
+  color: rgba(201, 168, 76, 0.6) !important;
+}
+.maplibregl-ctrl-logo {
+  opacity: 0.4 !important;
+}
+
 @media print {
   * {
     background: #ffffff !important;
